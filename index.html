@@ -3,56 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Praça - Chat Local</title>
+    <title>A Praça - Chat na Nuvem</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --accent: #27ae60;
-            --bg: #f4f7f6;
-        }
-
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg); 
-            margin: 0; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-        }
-        
-        #app { 
-            width: 100%; 
-            max-width: 400px; 
-            background: white; 
-            height: 80vh; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden; 
-        }
-
-        /* Telas */
+        :root { --primary: #2c3e50; --accent: #27ae60; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #app { width: 100%; max-width: 400px; background: white; height: 80vh; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
         .screen { display: none; padding: 20px; flex-direction: column; height: 100%; box-sizing: border-box; }
         .active { display: flex; }
-
-        /* Login */
         .login-screen { justify-content: center; text-align: center; gap: 15px; }
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 1rem; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
         button { padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        
-        /* Chat */
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
-        #chat-messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 10px; }
-        
-        .msg { background: #e9e9eb; padding: 8px 12px; border-radius: 15px; width: fit-content; max-width: 80%; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        #chat-messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 10px 0; }
+        .msg { background: #e9e9eb; padding: 8px 12px; border-radius: 15px; max-width: 80%; }
         .msg.me { align-self: flex-end; background: var(--accent); color: white; }
-        .msg-info { font-size: 0.7rem; display: block; margin-bottom: 3px; opacity: 0.8; }
-
+        .msg-info { font-size: 0.7rem; display: block; opacity: 0.8; }
         .chat-input-area { display: flex; gap: 5px; border-top: 1px solid #eee; padding-top: 10px; }
         .chat-input-area input { flex-grow: 1; }
-        .logout-btn { background: #e74c3c; padding: 5px 10px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -60,7 +27,6 @@
 <div id="app">
     <div id="login-screen" class="screen">
         <h1>🌳 A Praça</h1>
-        <p>Bem-vindo! Qual seu nome?</p>
         <input type="text" id="username-input" placeholder="Seu nome...">
         <button onclick="login()">Entrar</button>
     </div>
@@ -68,89 +34,84 @@
     <div id="chat-screen" class="screen">
         <header>
             <strong>A Praça</strong>
-            <button class="logout-btn" onclick="logout()">Sair</button>
+            <button onclick="logout()" style="background:#e74c3c">Sair</button>
         </header>
-        
         <div id="chat-messages"></div>
-
         <div class="chat-input-area">
             <input type="text" id="message-input" placeholder="Diga algo..." onkeypress="handleEnter(event)">
-            <button onclick="sendMessage()">Enviar</button>
+            <button id="send-btn" onclick="sendMessage()">Enviar</button>
         </div>
     </div>
 </div>
 
 <script>
+    // COLAR AQUI O SEU LINK DA IMPLANTAÇÃO ENTRE AS ASPAS:
+    const APP_URL = "COLE_AQUI_O_LINK_QUE_TERMINA_EM_EXEC";
+
     const loginScreen = document.getElementById('login-screen');
     const chatScreen = document.getElementById('chat-screen');
     const msgContainer = document.getElementById('chat-messages');
 
-    // Ao carregar a página
     window.onload = () => {
-        const user = localStorage.getItem('praca_user');
-        if (user) {
-            showChat();
-        } else {
-            loginScreen.classList.add('active');
-        }
+        if (localStorage.getItem('praca_user')) showChat();
+        else loginScreen.classList.add('active');
         renderMessages();
     };
 
     function login() {
         const name = document.getElementById('username-input').value.trim();
-        if (name) {
-            localStorage.setItem('praca_user', name);
-            showChat();
-        }
+        if (name) { localStorage.setItem('praca_user', name); showChat(); }
     }
 
-    function logout() {
-        localStorage.removeItem('praca_user');
-        location.reload(); // Recarrega para limpar a tela
-    }
+    function logout() { localStorage.removeItem('praca_user'); location.reload(); }
 
     function showChat() {
         loginScreen.classList.remove('active');
         chatScreen.classList.add('active');
-        renderMessages();
     }
 
-    function sendMessage() {
+    async function sendMessage() {
         const input = document.getElementById('message-input');
         const text = input.value.trim();
         const user = localStorage.getItem('praca_user');
+        const btn = document.getElementById('send-btn');
 
-        if (text) {
-            const messages = JSON.parse(localStorage.getItem('praca_msgs') || '[]');
-            messages.push({ user, text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
-            localStorage.setItem('praca_msgs', JSON.stringify(messages));
+        if (text && APP_URL !== "https://script.google.com/macros/s/AKfycbzsfu_Uw_H0uHUFUn51euG2y1XddKCAvvrIzUf2TBaGj3QJV2BMM4N1_ZRlihkuPQ4nnw/exec") {
+            btn.disabled = true;
+            const msgData = { nome: user, mensagem: text, hora: new Date().toLocaleTimeString() };
             
-            input.value = '';
+            // 1. Salva localmente para visualização rápida
+            let localMsgs = JSON.parse(localStorage.getItem('praca_msgs') || '[]');
+            localMsgs.push(msgData);
+            localStorage.setItem('praca_msgs', JSON.stringify(localMsgs));
             renderMessages();
+            input.value = '';
+
+            // 2. Envia para a Planilha Google
+            try {
+                await fetch(APP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Necessário para Google Script
+                    body: JSON.stringify(msgData)
+                });
+            } catch (e) { console.error("Erro ao enviar", e); }
+            btn.disabled = false;
         }
     }
 
     function renderMessages() {
         const messages = JSON.parse(localStorage.getItem('praca_msgs') || '[]');
         const currentUser = localStorage.getItem('praca_user');
-        
         msgContainer.innerHTML = messages.map(m => `
-            <div class="msg ${m.user === currentUser ? 'me' : ''}">
-                <span class="msg-info"><strong>${m.user}</strong> • ${m.time}</span>
-                ${m.text}
+            <div class="msg ${m.nome === currentUser ? 'me' : ''}">
+                <span class="msg-info"><strong>${m.nome}</strong> • ${m.hora}</span>
+                ${m.mensagem}
             </div>
         `).join('');
-        
         msgContainer.scrollTop = msgContainer.scrollHeight;
     }
 
-    function handleEnter(e) {
-        if (e.key === 'Enter') sendMessage();
-    }
-
-    // Atualiza a tela a cada segundo para ver mensagens de outras abas
-    setInterval(renderMessages, 1000);
+    function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
 </script>
-
 </body>
 </html>
