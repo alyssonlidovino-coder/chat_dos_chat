@@ -3,111 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Praça - Chat Oficial</title>
+    <title>A Praça - Oficial</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #e5ddd5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        #app { width: 100%; max-width: 400px; background: white; height: 90vh; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; }
+        body { font-family: sans-serif; background: #e5ddd5; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #app { width: 350px; background: white; height: 80vh; border-radius: 15px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; }
         .screen { padding: 20px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
-        input { padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
-        button { padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 5px; color: white; }
-        .btn-entrar { background: #25d366; }
-        .btn-cadastrar { background: #34b7f1; }
-        #chat-screen { display: none; background: #e5ddd5; }
-        #msg-container { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px 0; }
-        .bubble { background: white; padding: 8px 12px; border-radius: 8px; max-width: 80%; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
-        .bubble b { color: #075e54; font-size: 12px; display: block; }
+        #chat-screen { display: none; }
+        input { padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; margin-top: 5px; }
+        .btn-green { background: #25d366; }
+        .btn-blue { background: #34b7f1; }
+        #msgs { flex-grow: 1; overflow-y: auto; background: #f0f0f0; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
+        .b { background: white; padding: 8px; border-radius: 8px; margin-bottom: 5px; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
 <div id="app">
     <div id="login-screen" class="screen">
-        <h1 style="text-align:center; color:#075e54">🌳 A Praça</h1>
-        <input type="text" id="user" placeholder="Nome de usuário">
-        <input type="password" id="pass" placeholder="Senha">
-        <button class="btn-entrar" onclick="autenticar('login')">Entrar</button>
-        <button class="btn-cadastrar" onclick="autenticar('cadastro')">Criar Nova Conta</button>
+        <h2 style="text-align:center; color:#075e54">🌳 A Praça</h2>
+        <input type="text" id="user" placeholder="Usuário">
+        <input type="number" id="pass" placeholder="Senha (4 números)" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4)">
+        <button class="btn-green" onclick="entrar()">Entrar</button>
+        <button class="btn-blue" onclick="cadastrar()">Criar Conta</button>
     </div>
 
     <div id="chat-screen" class="screen">
-        <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:10px">
-            <b>Chat da Praça 🟢</b>
-            <button onclick="location.reload()" style="background:#d33; padding:5px; margin:0">Sair</button>
-        </div>
-        <div id="msg-container"></div>
-        <div style="display:flex; gap:5px; background:white; padding:5px; border-radius:5px">
-            <input type="text" id="msg-input" placeholder="Mensagem..." style="flex-grow:1; margin:0; border:none">
-            <button class="btn-entrar" onclick="enviarMensagem()" style="margin:0">OK</button>
+        <div id="msgs"></div>
+        <div style="display:flex; gap:5px">
+            <input type="text" id="msg" placeholder="Conversar..." style="flex-grow:1" onkeypress="if(event.key==='Enter') enviar()">
+            <button class="btn-green" onclick="enviar()">></button>
         </div>
     </div>
 </div>
+
 <script>
-    const APP_URL = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec";
+    // 1. COLE SEU LINK AQUI:
+    const URL = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec";
 
-    // Função para buscar mensagens da planilha
-    async function carregarMensagens() {
-        try {
-            // O site pergunta ao Google: "O que tem de novo?"
-            const resposta = await fetch(APP_URL);
-            const dados = await resposta.json();
-            
-            const container = document.getElementById('msg-container');
-            // Limpa o chat e coloca as mensagens atualizadas da planilha
-            container.innerHTML = dados.map(m => `
-                <div class="bubble">
-                    <b>${m.usuario}</b>
-                    ${m.msg}
-                </div>
-            `).join('');
-            
-            // Rola para o final
-            container.scrollTop = container.scrollHeight;
-        } catch (e) {
-            console.log("Aguardando novas mensagens...");
-        }
-    }
+    async function entrar() {
+        const u = document.getElementById('user').value;
+        const s = document.getElementById('pass').value;
+        if(!u || !s) return alert("Preencha tudo!");
 
-    // Atualiza o chat a cada 4 segundos
-    setInterval(carregarMensagens, 4000);
+        // Verifica login na planilha
+        const res = await fetch(`${URL}?acao=login&u=${u}&s=${s}`);
+        const texto = await res.text();
 
-    function autenticar(tipo) {
-        const u = document.getElementById('user').value.trim();
-        const p = document.getElementById('pass').value.trim();
-        if(!u || !p) return alert("Preencha tudo!");
-
-        fetch(APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({ tipo: tipo, usuario: u, senha: p })
-        });
-
-        if(tipo === 'cadastro') {
-            alert("Cadastro enviado!");
-        } else {
-            localStorage.setItem('user_praca', u);
+        if(texto === "ok") {
+            localStorage.setItem('p_user', u);
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('chat-screen').style.display = 'flex';
-            carregarMensagens(); // Carrega assim que logar
+            setInterval(carregar, 3000);
+        } else {
+            alert("Usuário ou senha incorretos!");
         }
     }
 
-    function enviarMensagem() {
-        const input = document.getElementById('msg-input');
-        const txt = input.value.trim();
-        const user = localStorage.getItem('user_praca');
-        if(!txt) return;
+    function cadastrar() {
+        const u = document.getElementById('user').value;
+        const s = document.getElementById('pass').value;
+        if(s.length !== 4) return alert("A senha deve ter exatamente 4 números!");
 
-        fetch(APP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({ tipo: 'mensagem', usuario: user, msg: txt })
-        });
+        fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'cadastro', usuario: u, senha: s }) });
+        alert("Cadastro solicitado! Tente logar em 5 segundos.");
+    }
 
+    async function carregar() {
+        const res = await fetch(URL);
+        const dados = await res.json();
+        const div = document.getElementById('msgs');
+        div.innerHTML = dados.map(m => `<div class="b"><b>${m.usuario}:</b> ${m.msg}</div>`).join('');
+        div.scrollTop = div.scrollHeight;
+    }
+
+    function enviar() {
+        const input = document.getElementById('msg');
+        const user = localStorage.getItem('p_user');
+        if(!input.value) return;
+
+        fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'mensagem', usuario: user, msg: input.value }) });
         input.value = "";
-        // Não precisamos renderizar aqui, o setInterval vai puxar da planilha!
     }
 </script>
-
-    
 </body>
 </html>
