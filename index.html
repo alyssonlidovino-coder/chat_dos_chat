@@ -41,17 +41,40 @@
         </div>
     </div>
 </div>
-
 <script>
-    // 1. COLE SEU LINK NOVO AQUI:
     const APP_URL = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec";
+
+    // Função para buscar mensagens da planilha
+    async function carregarMensagens() {
+        try {
+            // O site pergunta ao Google: "O que tem de novo?"
+            const resposta = await fetch(APP_URL);
+            const dados = await resposta.json();
+            
+            const container = document.getElementById('msg-container');
+            // Limpa o chat e coloca as mensagens atualizadas da planilha
+            container.innerHTML = dados.map(m => `
+                <div class="bubble">
+                    <b>${m.usuario}</b>
+                    ${m.msg}
+                </div>
+            `).join('');
+            
+            // Rola para o final
+            container.scrollTop = container.scrollHeight;
+        } catch (e) {
+            console.log("Aguardando novas mensagens...");
+        }
+    }
+
+    // Atualiza o chat a cada 4 segundos
+    setInterval(carregarMensagens, 4000);
 
     function autenticar(tipo) {
         const u = document.getElementById('user').value.trim();
         const p = document.getElementById('pass').value.trim();
         if(!u || !p) return alert("Preencha tudo!");
 
-        // Envia para a planilha (sem esperar resposta por causa do no-cors)
         fetch(APP_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -59,11 +82,12 @@
         });
 
         if(tipo === 'cadastro') {
-            alert("Cadastro enviado! Pode clicar em entrar agora.");
+            alert("Cadastro enviado!");
         } else {
             localStorage.setItem('user_praca', u);
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('chat-screen').style.display = 'flex';
+            carregarMensagens(); // Carrega assim que logar
         }
     }
 
@@ -73,12 +97,6 @@
         const user = localStorage.getItem('user_praca');
         if(!txt) return;
 
-        // Mostra na tela na hora
-        const container = document.getElementById('msg-container');
-        container.innerHTML += `<div class="bubble"><b>${user}</b>${txt}</div>`;
-        container.scrollTop = container.scrollHeight;
-
-        // Envia para a planilha
         fetch(APP_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -86,8 +104,10 @@
         });
 
         input.value = "";
+        // Não precisamos renderizar aqui, o setInterval vai puxar da planilha!
     }
 </script>
 
+    
 </body>
 </html>
