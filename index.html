@@ -6,21 +6,34 @@
     <title>A Praça - Chat Oficial</title>
     <style>
         :root { --primary: #2c3e50; --accent: #27ae60; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
         #app { width: 100%; max-width: 400px; background: white; height: 85vh; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+
+        /* Telas */
         .screen { display: none; padding: 20px; flex-direction: column; height: 100%; box-sizing: border-box; }
         .active { display: flex; }
+
+        /* Login */
         .login-screen { justify-content: center; text-align: center; gap: 15px; }
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 16px; }
-        button { padding: 12px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        button:disabled { background: #ccc; }
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        #chat-messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 15px 0; }
-        .msg { background: #e9e9eb; padding: 10px 14px; border-radius: 15px; max-width: 80%; word-wrap: break-word; position: relative; }
+        h1 { color: var(--primary); margin-bottom: 5px; }
+        input { padding: 14px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 16px; }
+        button { padding: 14px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { opacity: 0.9; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* Chat */
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
+        #chat-messages { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 5px; }
+        
+        .msg { background: #e9e9eb; padding: 10px 14px; border-radius: 15px; width: fit-content; max-width: 80%; font-size: 0.95rem; line-height: 1.4; }
         .msg.me { align-self: flex-end; background: var(--accent); color: white; }
-        .msg-info { font-size: 0.65rem; display: block; margin-bottom: 4px; font-weight: bold; opacity: 0.8; }
-        .chat-input-area { display: flex; gap: 8px; border-top: 1px solid #eee; padding-top: 15px; }
-        .chat-input-area input { flex-grow: 1; }
+        .msg-info { font-size: 0.7rem; display: block; margin-bottom: 3px; font-weight: bold; opacity: 0.7; }
+
+        .chat-input-area { display: flex; gap: 8px; border-top: 1px solid #eee; padding-top: 15px; margin-top: 10px; }
+        .chat-input-area input { flex-grow: 1; padding: 10px; }
+        
+        .logout-btn { background: #e74c3c; padding: 6px 12px; font-size: 0.8rem; border-radius: 5px; }
     </style>
 </head>
 <body>
@@ -28,36 +41,42 @@
 <div id="app">
     <div id="login-screen" class="screen">
         <h1>🌳 A Praça</h1>
-        <p>Entre para conversar</p>
-        <input type="text" id="username-input" placeholder="Seu apelido...">
-        <button onclick="login()">Entrar na Praça</button>
+        <p>Como você quer ser chamado?</p>
+        <input type="text" id="username-input" placeholder="Seu apelido..." maxlength="15">
+        <button onclick="login()">Entrar no Chat</button>
     </div>
 
     <div id="chat-screen" class="screen">
         <header>
             <strong>A Praça 🟢</strong>
-            <button onclick="logout()" style="background:#e74c3c; padding: 5px 10px;">Sair</button>
+            <button class="logout-btn" onclick="logout()">Sair</button>
         </header>
-        <div id="chat-messages"></div>
+        
+        <div id="chat-messages">
+            </div>
+
         <div class="chat-input-area">
-            <input type="text" id="message-input" placeholder="Escreva aqui..." onkeypress="handleEnter(event)">
+            <input type="text" id="message-input" placeholder="Diga algo..." onkeypress="handleEnter(event)">
             <button id="send-btn" onclick="sendMessage()">Enviar</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- COLE SEU LINK COMPLETO ABAIXO ---
-    const APP_URL = "SEU_LINK_AQUI_COM_HTTPS_E_EXEC";
-    // -------------------------------------
+    // ==========================================
+    // 1. COLE SEU LINK DA IMPLANTAÇÃO AQUI ABAIXO:
+    const APP_URL = "https://script.google.com/macros/s/AKfycbzsfu_Uw_H0uHUFUn51euG2y1XddKCAvvrIzUf2TBaGj3QJV2BMM4N1_ZRlihkuPQ4nnw/exec";
+    // ==========================================
 
     const loginScreen = document.getElementById('login-screen');
     const chatScreen = document.getElementById('chat-screen');
     const msgContainer = document.getElementById('chat-messages');
+    const sendBtn = document.getElementById('send-btn');
 
+    // Inicialização ao carregar a página
     window.onload = () => {
-        const user = localStorage.getItem('praca_user');
-        if (user) {
+        const savedUser = localStorage.getItem('praca_user');
+        if (savedUser) {
             showChat();
         } else {
             loginScreen.classList.add('active');
@@ -67,15 +86,15 @@
 
     function login() {
         const name = document.getElementById('username-input').value.trim();
-        if (name) { 
-            localStorage.setItem('praca_user', name); 
-            showChat(); 
+        if (name) {
+            localStorage.setItem('praca_user', name);
+            showChat();
         }
     }
 
-    function logout() { 
-        localStorage.removeItem('praca_user'); 
-        location.reload(); 
+    function logout() {
+        localStorage.removeItem('praca_user');
+        location.reload();
     }
 
     function showChat() {
@@ -88,36 +107,40 @@
         const input = document.getElementById('message-input');
         const text = input.value.trim();
         const user = localStorage.getItem('praca_user');
-        const btn = document.getElementById('send-btn');
 
-        if (!text || APP_URL.includes("https://script.google.com/macros/s/AKfycbzsfu_Uw_H0uHUFUn51euG2y1XddKCAvvrIzUf2TBaGj3QJV2BMM4N1_ZRlihkuPQ4nnw/exec")) return;
+        if (!text || APP_URL.includes("COLE_SEU_LINK")) return;
 
-        btn.disabled = true;
+        // Desativa o botão para evitar cliques duplos
+        sendBtn.disabled = true;
+
         const msgData = { 
             nome: user, 
             mensagem: text, 
             hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
         };
 
-        // Salva na memória do navegador para aparecer na hora
-        let localMsgs = JSON.parse(localStorage.getItem('praca_msgs') || '[]');
-        localMsgs.push(msgData);
-        localStorage.setItem('praca_msgs', JSON.stringify(localMsgs));
-        renderMessages();
+        // 1. Salva localmente (para visualização imediata no seu chat)
+        let messages = JSON.parse(localStorage.getItem('praca_msgs') || '[]');
+        messages.push(msgData);
+        localStorage.setItem('praca_msgs', JSON.stringify(messages));
+        
         input.value = '';
+        renderMessages();
 
-        // Tenta enviar para o Google Sheets
+        // 2. Envia para a Planilha Google (Modo Silencioso)
         fetch(APP_URL, {
             method: 'POST',
-            mode: 'no-cors', 
+            mode: 'no-cors', // Fundamental para não travar no Google
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(msgData)
-        }).then(() => {
-            console.log("Enviado com sucesso!");
-            btn.disabled = false;
-        }).catch(err => {
+        })
+        .then(() => {
+            sendBtn.disabled = false;
+            console.log("Mensagem enviada para a nuvem!");
+        })
+        .catch(err => {
+            sendBtn.disabled = false;
             console.error("Erro ao enviar:", err);
-            btn.disabled = false;
         });
     }
 
@@ -135,10 +158,12 @@
         msgContainer.scrollTop = msgContainer.scrollHeight;
     }
 
-    function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
+    function handleEnter(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
 
-    // Atualiza a cada 3 segundos para ver se alguém limpou a praça
-    setInterval(renderMessages, 3000);
+    // Tenta atualizar a tela a cada 5 segundos
+    setInterval(renderMessages, 5000);
 </script>
 
 </body>
