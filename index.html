@@ -3,18 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Praça - Oficial</title>
+    <title>A Praça - Chat Oficial</title>
     <style>
-        body { font-family: sans-serif; background: #e5ddd5; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        #app { width: 350px; background: white; height: 80vh; border-radius: 15px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; }
-        .screen { padding: 20px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
+        :root { --me-bg: #dcf8c6; --others-bg: #ffffff; --bg-zap: #e5ddd5; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #cfd8dc; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        #app { width: 100%; max-width: 400px; background: var(--bg-zap); height: 90vh; border-radius: 10px; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; }
+        .screen { padding: 15px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
+        
+        /* Mensagens Estilizadas */
         #chat-screen { display: none; }
-        input { padding: 12px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; outline: none; }
-        button { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; margin-top: 5px; }
+        #msgs { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+        
+        .bubble { padding: 8px 12px; border-radius: 12px; font-size: 14px; max-width: 75%; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); line-height: 1.4; }
+        .msg-me { align-self: flex-end; background: var(--me-bg); border-bottom-right-radius: 2px; }
+        .msg-others { align-self: flex-start; background: var(--others-bg); border-bottom-left-radius: 2px; }
+        .bubble b { display: block; font-size: 11px; color: #075e54; margin-bottom: 2px; }
+
+        /* Inputs e Botões */
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        .input-area { display: flex; gap: 8px; background: #f0f0f0; padding: 10px; border-top: 1px solid #ddd; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
         .btn-green { background: #25d366; }
         .btn-blue { background: #34b7f1; }
-        #msgs { flex-grow: 1; overflow-y: auto; background: #f0f0f0; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
-        .b { background: white; padding: 8px; border-radius: 8px; margin-bottom: 5px; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
@@ -24,65 +35,97 @@
         <h2 style="text-align:center; color:#075e54">🌳 A Praça</h2>
         <input type="text" id="user" placeholder="Usuário">
         <input type="number" id="pass" placeholder="Senha (4 números)" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4)">
-        <button class="btn-green" onclick="entrar()">Entrar</button>
+        <button class="btn-green" style="margin-top:10px" onclick="entrar()">Entrar</button>
         <button class="btn-blue" onclick="cadastrar()">Criar Conta</button>
     </div>
 
-    <div id="chat-screen" class="screen">
+    <div id="chat-screen" class="screen" style="padding:0">
+        <div style="background:#075e54; color:white; padding:15px; display:flex; justify-content:space-between">
+            <b>A Praça 🟢</b>
+            <span onclick="location.reload()" style="cursor:pointer; font-size:12px">SAIR</span>
+        </div>
         <div id="msgs"></div>
-        <div style="display:flex; gap:5px">
-            <input type="text" id="msg" placeholder="Conversar..." style="flex-grow:1" onkeypress="if(event.key==='Enter') enviar()">
-            <button class="btn-green" onclick="enviar()">></button>
+        <div class="input-area">
+            <input type="text" id="msg" placeholder="Digite uma mensagem..." style="flex-grow:1" onkeypress="if(event.key==='Enter') enviar()">
+            <button class="btn-green" onclick="enviar()">➤</button>
         </div>
     </div>
 </div>
 
 <script>
-    // 1. COLE SEU LINK AQUI:
-    const URL = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec";
+    const URL = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec"; // COLOQUE SEU LINK AQUI
+    let ultimoCount = 0;
 
     async function entrar() {
-        const u = document.getElementById('user').value;
+        const u = document.getElementById('user').value.trim();
         const s = document.getElementById('pass').value;
         if(!u || !s) return alert("Preencha tudo!");
 
-        // Verifica login na planilha
-        const res = await fetch(`${URL}?acao=login&u=${u}&s=${s}`);
-        const texto = await res.text();
+        const btn = document.querySelector('.btn-green');
+        btn.innerText = "Verificando...";
+        
+        try {
+            const res = await fetch(`${URL}?acao=login&u=${u}&s=${s}`);
+            const texto = await res.text();
 
-        if(texto === "ok") {
-            localStorage.setItem('p_user', u);
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('chat-screen').style.display = 'flex';
-            setInterval(carregar, 3000);
-        } else {
-            alert("Usuário ou senha incorretos!");
+            if(texto.trim() === "ok") {
+                localStorage.setItem('p_user', u);
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('chat-screen').style.display = 'flex';
+                carregar();
+                setInterval(carregar, 2500); // 2.5 segundos para não travar o Google
+            } else {
+                alert("Usuário ou senha incorretos!");
+                btn.innerText = "Entrar";
+            }
+        } catch(e) {
+            alert("Erro de conexão. Verifique o link do script!");
+            btn.innerText = "Entrar";
         }
     }
 
     function cadastrar() {
-        const u = document.getElementById('user').value;
+        const u = document.getElementById('user').value.trim();
         const s = document.getElementById('pass').value;
-        if(s.length !== 4) return alert("A senha deve ter exatamente 4 números!");
+        if(s.length !== 4) return alert("A senha deve ter 4 números!");
 
         fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'cadastro', usuario: u, senha: s }) });
-        alert("Cadastro solicitado! Tente logar em 5 segundos.");
+        alert("Cadastro enviado! Tente logar agora.");
     }
 
     async function carregar() {
-        const res = await fetch(URL);
-        const dados = await res.json();
-        const div = document.getElementById('msgs');
-        div.innerHTML = dados.map(m => `<div class="b"><b>${m.usuario}:</b> ${m.msg}</div>`).join('');
-        div.scrollTop = div.scrollHeight;
+        try {
+            const res = await fetch(URL);
+            const dados = await res.json();
+            const userAtivo = localStorage.getItem('p_user');
+            const div = document.getElementById('msgs');
+            
+            // Só atualiza se houver mensagens novas para evitar "pulo" na tela
+            if(dados.length !== ultimoCount) {
+                div.innerHTML = dados.map(m => `
+                    <div class="bubble ${m.usuario === userAtivo ? 'msg-me' : 'msg-others'}">
+                        <b>${m.usuario}</b>
+                        ${m.msg}
+                    </div>
+                `).join('');
+                div.scrollTop = div.scrollHeight;
+                ultimoCount = dados.length;
+            }
+        } catch(e) { console.log("Erro ao carregar"); }
     }
 
     function enviar() {
         const input = document.getElementById('msg');
+        const txt = input.value.trim();
         const user = localStorage.getItem('p_user');
-        if(!input.value) return;
+        if(!txt) return;
 
-        fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'mensagem', usuario: user, msg: input.value }) });
+        // Feedback visual instantâneo (Otimismo)
+        const div = document.getElementById('msgs');
+        div.innerHTML += `<div class="bubble msg-me"><b>${user}</b>${txt}</div>`;
+        div.scrollTop = div.scrollHeight;
+
+        fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'mensagem', usuario: user, msg: txt }) });
         input.value = "";
     }
 </script>
