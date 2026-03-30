@@ -2,53 +2,70 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>A Praça - Oficial</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>A Praça - Premium</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #cfd8dc; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        #app { width: 100%; max-width: 400px; background: #e5ddd5; height: 100%; display: flex; flex-direction: column; position: relative; }
-        .screen { padding: 20px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #cfd8dc; margin: 0; height: 100svh; display: flex; justify-content: center; overflow: hidden; }
         
-        /* Estilo das Mensagens */
-        #msgs { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 15px; }
-        .bubble { padding: 8px 12px; border-radius: 12px; font-size: 15px; max-width: 85%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; word-wrap: break-word; }
+        #app { width: 100%; max-width: 500px; background: #e5ddd5; height: 100%; display: flex; flex-direction: column; }
+
+        /* Cabeçalho */
+        .header { background: #075e54; color: white; padding: 12px 16px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        
+        /* Área de Mensagens */
+        #msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 15px; scroll-behavior: smooth; }
+        .bubble { padding: 8px 12px; border-radius: 12px; font-size: 15px; max-width: 85%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; word-wrap: break-word; line-height: 1.4; }
         .msg-me { align-self: flex-end; background: #dcf8c6; border-bottom-right-radius: 2px; }
         .msg-others { align-self: flex-start; background: #ffffff; border-bottom-left-radius: 2px; }
         .bubble b { display: block; font-size: 11px; color: #075e54; margin-bottom: 2px; text-transform: uppercase; }
         .hora { font-size: 10px; color: #888; float: right; margin-top: 5px; margin-left: 8px; }
+
+        /* Barra de Digitação (Fixa no rodapé) */
+        .input-area { display: flex; gap: 8px; background: #f0f0f0; padding: 10px 15px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid #ddd; }
+        #msg-input { flex: 1; padding: 12px 18px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 16px; background: white; }
+        .btn-enviar { background: #25d366; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+
+        /* Telas */
+        .screen { flex: 1; display: flex; flex-direction: column; }
+        #login-screen { background: white; padding: 30px; justify-content: center; gap: 15px; }
         
-        /* Topo e Inputs */
-        .header { background: #075e54; color: white; padding: 15px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .input-area { display: flex; gap: 8px; background: #f0f0f0; padding: 10px; border-top: 1px solid #ddd; }
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 16px; flex-grow: 1; }
-        button { padding: 10px 18px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; background: #25d366; color: white; }
-        .btn-limpar { background: #e57373; font-size: 10px; padding: 4px 8px; border-radius: 4px; border: none; color: white; }
-        
-        /* Login */
-        #login-screen input { margin-bottom: 10px; flex-grow: 0; }
+        /* Inputs de Login */
+        .input-group { position: relative; width: 100%; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .toggle-pass { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #075e54; font-size: 12px; font-weight: bold; cursor: pointer; }
+
+        .btn-primario { padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; background: #075e54; color: white; }
+        .btn-secundario { background: #34b7f1; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; }
+        .btn-limpar { background: rgba(255,255,255,0.2); border: 1px solid white; font-size: 10px; padding: 4px 8px; border-radius: 4px; color: white; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div id="login-screen" class="screen" style="background:white">
-        <h2 style="text-align:center; color:#075e54">🌳 A Praça</h2>
-        <input type="text" id="user" placeholder="Usuário">
-        <input type="number" id="pass" placeholder="Senha (4 dígitos)" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4)">
-        <button onclick="entrar()">ENTRAR</button>
-        <button onclick="cadastrar()" style="background:#34b7f1; margin-top:8px">CADASTRAR</button>
+    <div id="login-screen" class="screen">
+        <h1 style="text-align:center; color:#075e54; margin-bottom:10px">🌳 A Praça</h1>
+        <div class="input-group">
+            <input type="text" id="user" placeholder="Seu nome de usuário">
+        </div>
+        <div class="input-group">
+            <input type="password" id="pass" placeholder="Senha (4 dígitos)" maxlength="4">
+            <button class="toggle-pass" onclick="toggleSenha()">VER</button>
+        </div>
+        <button class="btn-primario" onclick="entrar()">ENTRAR</button>
+        <button class="btn-secundario" onclick="cadastrar()">CRIAR CONTA</button>
         <p id="status" style="text-align:center; font-size:12px; color:gray"></p>
     </div>
 
-    <div id="chat-screen" class="screen" style="display:none; padding:0">
+    <div id="chat-screen" class="screen" style="display:none">
         <div class="header">
-            <span>A Praça 🟢 <button class="btn-limpar" onclick="limparTudo()">Limpar</button></span>
-            <span onclick="location.reload()" style="font-size:11px">SAIR</span>
+            <span>A Praça 🟢 <button class="btn-limpar" onclick="limparTudo()">Limpar Chat</button></span>
+            <span onclick="location.reload()" style="font-size:11px; cursor:pointer">SAIR</span>
         </div>
         <div id="msgs"></div>
         <div class="input-area">
-            <input type="text" id="msg-input" placeholder="Mensagem..." onkeypress="if(event.key==='Enter') enviar()">
-            <button onclick="enviar()">➤</button>
+            <input type="text" id="msg-input" placeholder="Digite uma mensagem..." autocomplete="off">
+            <button class="btn-enviar" onclick="enviar()">➤</button>
         </div>
     </div>
 </div>
@@ -56,40 +73,54 @@
 <audio id="som-pop" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3" preload="auto"></audio>
 
 <script>
-    // Substitua o link abaixo pelo seu novo link do Google:
+    // ⚠️ COLOQUE SEU LINK ABAIXO
     const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec";
 
     let meuNomeGlobal = "";
     let ultimaQtd = 0;
 
+    function toggleSenha() {
+        const input = document.getElementById('pass');
+        const btn = document.querySelector('.toggle-pass');
+        if (input.type === "password") {
+            input.type = "text";
+            btn.innerText = "OCULTAR";
+        } else {
+            input.type = "password";
+            btn.innerText = "VER";
+        }
+    }
+
     async function entrar() {
         const u = document.getElementById('user').value.trim();
         const s = document.getElementById('pass').value.trim();
-        if(!u || !s) return alert("Preencha tudo!");
+        if(!u || !s) return alert("Preencha os campos!");
         
         document.getElementById('status').innerText = "Conectando...";
-        const res = await fetch(`${URL_SCRIPT}?acao=login&u=${encodeURIComponent(u)}&s=${encodeURIComponent(s)}`);
-        const texto = await res.text();
+        try {
+            const res = await fetch(`${URL_SCRIPT}?acao=login&u=${encodeURIComponent(u)}&s=${encodeURIComponent(s)}`);
+            const texto = await res.text();
 
-        if(texto.trim() === "ok") {
-            meuNomeGlobal = u.toLowerCase().trim();
-            localStorage.setItem('p_user_nome', u);
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('chat-screen').style.display = 'flex';
-            carregar();
-            setInterval(carregar, 3000);
-        } else {
-            alert("Erro no login!");
-            document.getElementById('status').innerText = "";
-        }
+            if(texto.trim() === "ok") {
+                meuNomeGlobal = u.toLowerCase().trim();
+                localStorage.setItem('p_user_nome', u);
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('chat-screen').style.display = 'flex';
+                carregar();
+                setInterval(carregar, 3000);
+            } else {
+                alert("Login incorreto!");
+                document.getElementById('status').innerText = "";
+            }
+        } catch(e) { alert("Erro de conexão!"); }
     }
 
     function cadastrar() {
         const u = document.getElementById('user').value.trim();
         const s = document.getElementById('pass').value.trim();
-        if(!u || s.length !== 4) return alert("Usuário vazio ou senha que não tem 4 dígitos!");
+        if(!u || s.length !== 4) return alert("Nome vazio ou senha fora do padrão (4 dígitos)");
         fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'cadastro', usuario: u, senha: s }) });
-        alert("Cadastrado! Tente entrar em 5 segundos.");
+        alert("Cadastrado! Já pode entrar.");
     }
 
     async function carregar() {
@@ -99,9 +130,12 @@
             const div = document.getElementById('msgs');
 
             if(dados.length !== ultimaQtd) {
-                // Toca som se alguém enviou mensagem
-                if(ultimaQtd > 0 && dados[dados.length-1].u.toLowerCase().trim() !== meuNomeGlobal) {
-                    document.getElementById('som-pop').play().catch(()=>{});
+                // Notificação sonora
+                if(ultimaQtd > 0 && dados.length > 0) {
+                   const ultimaMsg = dados[dados.length-1];
+                   if(ultimaMsg.u.toLowerCase().trim() !== meuNomeGlobal) {
+                       document.getElementById('som-pop').play().catch(()=>{});
+                   }
                 }
                 
                 div.innerHTML = dados.map(m => {
@@ -110,6 +144,8 @@
                         <b>${m.u}</b>${m.m}<span class="hora">${m.h}</span>
                     </div>`;
                 }).join('');
+                
+                // Rola para o fim apenas se houver novas mensagens
                 div.scrollTop = div.scrollHeight;
                 ultimaQtd = dados.length;
             }
@@ -120,15 +156,32 @@
         const input = document.getElementById('msg-input');
         const txt = input.value.trim();
         if(!txt) return;
-        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'mensagem', usuario: localStorage.getItem('p_user_nome'), msg: txt }) });
+        
+        fetch(URL_SCRIPT, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: JSON.stringify({ tipo: 'mensagem', usuario: localStorage.getItem('p_user_nome'), msg: txt }) 
+        });
+        
         input.value = "";
+        input.focus();
     }
 
+    // Monitorar tecla Enter
+    document.getElementById('msg-input').addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') enviar();
+    });
+
     async function limparTudo() {
-        if(confirm("Apagar histórico para TODOS?")) {
-            await fetch(`${URL_SCRIPT}?acao=limpar`);
-            location.reload();
-        }
+        if(!confirm("Isso apagará todas as mensagens da praça. Continuar?")) return;
+        
+        // Chamada silenciosa (sem recarregar a página)
+        fetch(`${URL_SCRIPT}?acao=limpar`);
+        
+        // Limpa visualmente para o usuário na hora
+        document.getElementById('msgs').innerHTML = "";
+        ultimaQtd = 0;
+        alert("A praça foi limpa!");
     }
 </script>
 </body>
