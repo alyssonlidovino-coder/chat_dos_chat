@@ -93,20 +93,22 @@
         alert("Cadastro enviado! Tente logar agora.");
     }
 
-  async function carregar() {
+ async function carregar() {
     try {
-        const res = await fetch(URL);
+        const res = await fetch(URL_SCRIPT);
         const dados = await res.json();
         
-        // Pegamos o seu nome e limpamos qualquer espaço sobrando
-        const userAtivo = localStorage.getItem('p_user').trim().toLowerCase();
+        // Pegamos o nome salvo no login, limpamos espaços e deixamos minúsculo
+        const meuNomeLocal = localStorage.getItem('meu_nome').toString().trim().toLowerCase();
         const div = document.getElementById('msgs');
-        
-        if(dados.length !== ultimoCount) {
+
+        // Só reconstrói o chat se o número de mensagens mudou
+        if (dados.length !== contador) {
             div.innerHTML = dados.map(m => {
-                // Comparamos os nomes de forma "limpa" (tudo minúsculo e sem espaços)
-                const souEu = m.usuario.toString().trim().toLowerCase() === userAtivo;
-                
+                // Limpamos o nome que veio da planilha também para comparar igual com igual
+                const nomeDaPlanilha = m.usuario.toString().trim().toLowerCase();
+                const souEu = (nomeDaPlanilha === meuNomeLocal);
+
                 return `
                     <div class="bubble ${souEu ? 'msg-me' : 'msg-others'}">
                         <b>${m.usuario}</b>
@@ -116,10 +118,10 @@
             }).join('');
             
             div.scrollTop = div.scrollHeight;
-            ultimoCount = dados.length;
+            contador = dados.length;
         }
-    } catch(e) { 
-        console.log("Tentando reconectar..."); 
+    } catch (e) {
+        console.log("Sincronizando...");
     }
 }
     function enviar() {
