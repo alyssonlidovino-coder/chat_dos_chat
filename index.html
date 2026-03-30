@@ -5,139 +5,136 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A Praça - Chat Oficial</title>
     <style>
-        :root { --me-bg: #dcf8c6; --others-bg: #ffffff; --bg-zap: #e5ddd5; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #cfd8dc; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        
-        #app { width: 100%; max-width: 400px; background: var(--bg-zap); height: 90vh; border-radius: 10px; display: flex; flex-direction: column; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; }
-        .screen { padding: 15px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
-        
-        /* Mensagens Estilizadas */
-        #chat-screen { display: none; }
-        #msgs { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 10px; }
-        
-        .bubble { padding: 8px 12px; border-radius: 12px; font-size: 14px; max-width: 75%; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); line-height: 1.4; }
-        .msg-me { align-self: flex-end; background: var(--me-bg); border-bottom-right-radius: 2px; }
-        .msg-others { align-self: flex-start; background: var(--others-bg); border-bottom-left-radius: 2px; }
-        .bubble b { display: block; font-size: 11px; color: #075e54; margin-bottom: 2px; }
-
-        /* Inputs e Botões */
-        input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
-        .input-area { display: flex; gap: 8px; background: #f0f0f0; padding: 10px; border-top: 1px solid #ddd; }
-        button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; }
-        .btn-green { background: #25d366; }
-        .btn-blue { background: #34b7f1; }
+        body { font-family: 'Segoe UI', sans-serif; background: #cfd8dc; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        #app { width: 100%; max-width: 400px; background: #e5ddd5; height: 90vh; border-radius: 15px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; }
+        .screen { padding: 20px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
+        #msgs { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 15px; background: #e5ddd5; }
+        .bubble { padding: 10px 14px; border-radius: 12px; font-size: 15px; max-width: 80%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; }
+        .msg-me { align-self: flex-end; background: #dcf8c6; border-bottom-right-radius: 2px; }
+        .msg-others { align-self: flex-start; background: #ffffff; border-bottom-left-radius: 2px; }
+        .bubble b { display: block; font-size: 11px; color: #075e54; margin-bottom: 3px; text-transform: uppercase; }
+        .input-area { display: flex; gap: 8px; background: #f0f0f0; padding: 12px; border-top: 1px solid #ddd; }
+        input { padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 16px; }
+        button { padding: 10px 20px; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; background: #25d366; color: white; transition: 0.3s; }
+        button:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div id="login-screen" class="screen">
-        <h2 style="text-align:center; color:#075e54">🌳 A Praça</h2>
-        <input type="text" id="user" placeholder="Usuário">
+    <div id="login-screen" class="screen" style="background:white">
+        <h2 style="text-align:center; color:#075e54; margin-bottom:30px">🌳 A Praça</h2>
+        <input type="text" id="user" placeholder="Seu nome de usuário">
         <input type="number" id="pass" placeholder="Senha (4 números)" oninput="if(this.value.length > 4) this.value = this.value.slice(0,4)">
-        <button class="btn-green" style="margin-top:10px" onclick="entrar()">Entrar</button>
-        <button class="btn-blue" onclick="cadastrar()">Criar Conta</button>
+        <button onclick="entrar()" style="margin-top:15px">Entrar no Chat</button>
+        <button onclick="cadastrar()" style="background:#34b7f1; margin-top:10px">Criar Minha Conta</button>
+        <p id="status" style="font-size:12px; text-align:center; color:gray; margin-top:20px"></p>
     </div>
 
-    <div id="chat-screen" class="screen" style="padding:0">
-        <div style="background:#075e54; color:white; padding:15px; display:flex; justify-content:space-between">
-            <b>A Praça 🟢</b>
-            <span onclick="location.reload()" style="cursor:pointer; font-size:12px">SAIR</span>
+    <div id="chat-screen" class="screen" style="display:none; padding:0">
+        <div style="background:#075e54; color:white; padding:15px; font-weight:bold; display:flex; justify-content:space-between; align-items:center">
+            <span>A Praça 🟢</span>
+            <span onclick="location.reload()" style="font-size:12px; cursor:pointer; opacity:0.8">SAIR</span>
         </div>
         <div id="msgs"></div>
         <div class="input-area">
-            <input type="text" id="msg" placeholder="Digite uma mensagem..." style="flex-grow:1" onkeypress="if(event.key==='Enter') enviar()">
-            <button class="btn-green" onclick="enviar()">➤</button>
+            <input type="text" id="msg-input" placeholder="Conversar..." style="flex-grow:1" onkeypress="if(event.key==='Enter') enviar()">
+            <button onclick="enviar()">➤</button>
         </div>
     </div>
 </div>
 
 <script>
-    const URL = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec"; // COLOQUE SEU LINK AQUI
-    let ultimoCount = 0;
+    // ⚠️ ATENÇÃO: COLE SEU LINK NOVO AQUI ABAIXO:
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec";
+    
+    let meuNomeGlobal = "";
+    let ultimaQuantidade = 0;
 
     async function entrar() {
         const u = document.getElementById('user').value.trim();
-        const s = document.getElementById('pass').value;
-        if(!u || !s) return alert("Preencha tudo!");
-
-        const btn = document.querySelector('.btn-green');
-        btn.innerText = "Verificando...";
+        const s = document.getElementById('pass').value.trim();
+        const status = document.getElementById('status');
+        
+        if(!u || !s) return alert("Por favor, preencha nome e senha!");
+        
+        status.innerText = "Verificando... Aguarde.";
         
         try {
-            const res = await fetch(`${URL}?acao=login&u=${u}&s=${s}`);
-            const texto = await res.text();
+            const resposta = await fetch(`${URL_SCRIPT}?acao=login&u=${encodeURIComponent(u)}&s=${encodeURIComponent(s)}`);
+            const resultado = await resposta.text();
 
-            if(texto.trim() === "ok") {
-                localStorage.setItem('p_user', u);
+            if(resultado.trim() === "ok") {
+                meuNomeGlobal = u.toLowerCase().trim();
+                localStorage.setItem('p_user_nome', u);
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('chat-screen').style.display = 'flex';
                 carregar();
-                setInterval(carregar, 2500); // 2.5 segundos para não travar o Google
+                setInterval(carregar, 3000); // Atualiza a cada 3 segundos
             } else {
-                alert("Usuário ou senha incorretos!");
-                btn.innerText = "Entrar";
+                alert("Usuário ou senha não encontrados!");
+                status.innerText = "";
             }
         } catch(e) {
-            alert("Erro de conexão. Verifique o link do script!");
-            btn.innerText = "Entrar";
+            alert("Erro ao conectar com o servidor. Tente novamente.");
+            status.innerText = "";
         }
     }
 
     function cadastrar() {
         const u = document.getElementById('user').value.trim();
-        const s = document.getElementById('pass').value;
-        if(s.length !== 4) return alert("A senha deve ter 4 números!");
+        const s = document.getElementById('pass').value.trim();
+        if(s.length !== 4) return alert("A senha precisa ter exatamente 4 números!");
 
-        fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'cadastro', usuario: u, senha: s }) });
-        alert("Cadastro enviado! Tente logar agora.");
+        fetch(URL_SCRIPT, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({ tipo: 'cadastro', usuario: u, senha: s })
+        });
+        alert("Cadastro enviado! Aguarde 5 segundos e clique em Entrar.");
     }
 
- async function carregar() {
-    try {
-        const res = await fetch(URL_SCRIPT);
-        const dados = await res.json();
-        
-        // Pegamos o nome salvo no login, limpamos espaços e deixamos minúsculo
-        const meuNomeLocal = localStorage.getItem('meu_nome').toString().trim().toLowerCase();
-        const div = document.getElementById('msgs');
+    async function carregar() {
+        try {
+            const res = await fetch(URL_SCRIPT);
+            const dados = await res.json();
+            const div = document.getElementById('msgs');
 
-        // Só reconstrói o chat se o número de mensagens mudou
-        if (dados.length !== contador) {
-            div.innerHTML = dados.map(m => {
-                // Limpamos o nome que veio da planilha também para comparar igual com igual
-                const nomeDaPlanilha = m.usuario.toString().trim().toLowerCase();
-                const souEu = (nomeDaPlanilha === meuNomeLocal);
-
-                return `
-                    <div class="bubble ${souEu ? 'msg-me' : 'msg-others'}">
-                        <b>${m.usuario}</b>
-                        ${m.msg}
-                    </div>
-                `;
-            }).join('');
-            
-            div.scrollTop = div.scrollHeight;
-            contador = dados.length;
+            if(dados.length !== ultimaQuantidade) {
+                div.innerHTML = dados.map(m => {
+                    // COMPARAÇÃO BLINDADA: Ignora maiúsculas e espaços
+                    const souEu = m.usuario.toString().toLowerCase().trim() === meuNomeGlobal;
+                    return `
+                        <div class="bubble ${souEu ? 'msg-me' : 'msg-others'}">
+                            <b>${m.usuario}</b>
+                            ${m.msg}
+                        </div>
+                    `;
+                }).join('');
+                div.scrollTop = div.scrollHeight;
+                ultimaQuantidade = dados.length;
+            }
+        } catch(e) {
+            console.log("Sincronizando...");
         }
-    } catch (e) {
-        console.log("Sincronizando...");
     }
-}
+
     function enviar() {
-        const input = document.getElementById('msg');
+        const input = document.getElementById('msg-input');
         const txt = input.value.trim();
-        const user = localStorage.getItem('p_user');
         if(!txt) return;
 
-        // Feedback visual instantâneo (Otimismo)
-        const div = document.getElementById('msgs');
-        div.innerHTML += `<div class="bubble msg-me"><b>${user}</b>${txt}</div>`;
-        div.scrollTop = div.scrollHeight;
+        const nomeSalvo = localStorage.getItem('p_user_nome');
 
-        fetch(URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'mensagem', usuario: user, msg: txt }) });
+        fetch(URL_SCRIPT, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify({ tipo: 'mensagem', usuario: nomeSalvo, msg: txt })
+        });
+
         input.value = "";
     }
 </script>
+
 </body>
 </html>
