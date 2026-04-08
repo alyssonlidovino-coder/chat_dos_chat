@@ -7,41 +7,28 @@
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: #cfd8dc; margin: 0; height: 100svh; display: flex; justify-content: center; overflow: hidden; }
-        
         #app { width: 100%; max-width: 500px; background: #e5ddd5; height: 100%; display: flex; flex-direction: column; }
-
-        /* Cabeçalho */
-        .header { background: #075e54; color: white; padding: 12px 16px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        
-        /* Área de Mensagens */
-        #msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 15px; scroll-behavior: smooth; }
+        .header { background: #075e54; color: white; padding: 12px 16px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        #msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 15px; }
         .bubble { padding: 8px 12px; border-radius: 12px; font-size: 15px; max-width: 85%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; word-wrap: break-word; line-height: 1.4; }
         .msg-me { align-self: flex-end; background: #dcf8c6; border-bottom-right-radius: 2px; }
         .msg-others { align-self: flex-start; background: #ffffff; border-bottom-left-radius: 2px; }
         .bubble b { display: block; font-size: 11px; color: #075e54; margin-bottom: 2px; text-transform: uppercase; }
         .hora { font-size: 10px; color: #888; float: right; margin-top: 5px; margin-left: 8px; }
-
-        /* Barra de Digitação (Fixa no rodapé) */
         .input-area { display: flex; gap: 8px; background: #f0f0f0; padding: 10px 15px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid #ddd; }
         #msg-input { flex: 1; padding: 12px 18px; border: 1px solid #ddd; border-radius: 25px; outline: none; font-size: 16px; background: white; }
         .btn-enviar { background: #25d366; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
-
-        /* Telas */
         .screen { flex: 1; display: flex; flex-direction: column; }
         #login-screen { background: white; padding: 30px; justify-content: center; gap: 15px; }
-        
-        /* Inputs de Login */
         .input-group { position: relative; width: 100%; }
         .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
         .toggle-pass { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #075e54; font-size: 12px; font-weight: bold; cursor: pointer; }
-
         .btn-primario { padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; background: #075e54; color: white; }
         .btn-secundario { background: #34b7f1; color: white; padding: 12px; border: none; border-radius: 8px; font-weight: bold; }
         .btn-limpar { background: rgba(255,255,255,0.2); border: 1px solid white; font-size: 10px; padding: 4px 8px; border-radius: 4px; color: white; }
     </style>
 </head>
 <body>
-
 <div id="app">
     <div id="login-screen" class="screen">
         <h1 style="text-align:center; color:#075e54; margin-bottom:10px">🌳 A Praça</h1>
@@ -56,7 +43,6 @@
         <button class="btn-secundario" onclick="cadastrar()">CRIAR CONTA</button>
         <p id="status" style="text-align:center; font-size:12px; color:gray"></p>
     </div>
-
     <div id="chat-screen" class="screen" style="display:none">
         <div class="header">
             <span>A Praça 🟢 <button class="btn-limpar" onclick="limparTudo()">Limpar Chat</button></span>
@@ -69,119 +55,75 @@
         </div>
     </div>
 </div>
-
 <audio id="som-pop" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3" preload="auto"></audio>
-
 <script>
-    // ⚠️ COLOQUE SEU LINK ABAIXO
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec";
-
+    const URL_SCRIPT = https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec";
     let meuNomeGlobal = "";
     let ultimaQtd = 0;
-
     function toggleSenha() {
         const input = document.getElementById('pass');
         const btn = document.querySelector('.toggle-pass');
-        if (input.type === "password") {
-            input.type = "text";
-            btn.innerText = "OCULTAR";
-        } else {
-            input.type = "password";
-            btn.innerText = "VER";
-        }
+        if (input.type === "password") { input.type = "text"; btn.innerText = "OCULTAR"; } 
+        else { input.type = "password"; btn.innerText = "VER"; }
     }
-
     async function entrar() {
         const u = document.getElementById('user').value.trim();
         const s = document.getElementById('pass').value.trim();
-        if(!u || !s) return alert("Preencha os campos!");
-        
+        if(!u || !s) return alert("Preencha!");
         document.getElementById('status').innerText = "Conectando...";
         try {
             const res = await fetch(`${URL_SCRIPT}?acao=login&u=${encodeURIComponent(u)}&s=${encodeURIComponent(s)}`);
             const texto = await res.text();
-
             if(texto.trim() === "ok") {
                 meuNomeGlobal = u.toLowerCase().trim();
                 localStorage.setItem('p_user_nome', u);
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('chat-screen').style.display = 'flex';
-                carregar();
-                setInterval(carregar, 3000);
-            } else {
-                alert("Login incorreto!");
-                document.getElementById('status').innerText = "";
-            }
+                carregar(); setInterval(carregar, 3000);
+            } else { alert("Erro!"); document.getElementById('status').innerText = ""; }
         } catch(e) { alert("Erro de conexão!"); }
     }
-
     function cadastrar() {
         const u = document.getElementById('user').value.trim();
         const s = document.getElementById('pass').value.trim();
-        if(!u || s.length !== 4) return alert("Nome vazio ou senha fora do padrão (4 dígitos)");
+        if(!u || s.length !== 4) return alert("Erro nos dados!");
         fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'cadastro', usuario: u, senha: s }) });
-        alert("Cadastrado! Já pode entrar.");
+        alert("Cadastrado!");
     }
-
     async function carregar() {
         try {
             const res = await fetch(URL_SCRIPT);
             const dados = await res.json();
             const div = document.getElementById('msgs');
-
             if(dados.length !== ultimaQtd) {
-                // Notificação sonora
-                if(ultimaQtd > 0 && dados.length > 0) {
-                   const ultimaMsg = dados[dados.length-1];
-                   if(ultimaMsg.u.toLowerCase().trim() !== meuNomeGlobal) {
+                if(ultimaQtd > 0 && dados.length > ultimaQtd) {
+                   if(dados[dados.length-1].u.toLowerCase().trim() !== meuNomeGlobal) {
                        document.getElementById('som-pop').play().catch(()=>{});
                    }
                 }
-                
                 div.innerHTML = dados.map(m => {
                     const souEu = m.u.toString().toLowerCase().trim() === meuNomeGlobal;
-                    return `<div class="bubble ${souEu ? 'msg-me' : 'msg-others'}">
-                        <b>${m.u}</b>${m.m}<span class="hora">${m.h}</span>
-                    </div>`;
+                    return `<div class="bubble ${souEu ? 'msg-me' : 'msg-others'}"><b>${m.u}</b>${m.m}<span class="hora">${m.h}</span></div>`;
                 }).join('');
-                
-                // Rola para o fim apenas se houver novas mensagens
                 div.scrollTop = div.scrollHeight;
                 ultimaQtd = dados.length;
             }
         } catch(e) {}
     }
-
     function enviar() {
         const input = document.getElementById('msg-input');
         const txt = input.value.trim();
         if(!txt) return;
-        
-        fetch(URL_SCRIPT, { 
-            method: 'POST', 
-            mode: 'no-cors', 
-            body: JSON.stringify({ tipo: 'mensagem', usuario: localStorage.getItem('p_user_nome'), msg: txt }) 
-        });
-        
+        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'mensagem', usuario: localStorage.getItem('p_user_nome'), msg: txt }) });
         input.value = "";
-        input.focus();
     }
-
-    // Monitorar tecla Enter
-    document.getElementById('msg-input').addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') enviar();
-    });
-
+    document.getElementById('msg-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') enviar(); });
     async function limparTudo() {
-        if(!confirm("Isso apagará todas as mensagens da praça. Continuar?")) return;
-        
-        // Chamada silenciosa (sem recarregar a página)
+        if(!confirm("Apagar chat para todos?")) return;
         fetch(`${URL_SCRIPT}?acao=limpar`);
-        
-        // Limpa visualmente para o usuário na hora
         document.getElementById('msgs').innerHTML = "";
         ultimaQtd = 0;
-        alert("A praça foi limpa!");
+        alert("Limpando...");
     }
 </script>
 </body>
