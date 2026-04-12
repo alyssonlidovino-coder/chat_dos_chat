@@ -7,48 +7,56 @@
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: sans-serif; background: #fafafa; margin: 0; display: flex; justify-content: center; height: 100svh; overflow: hidden; }
-        #app { width: 100%; max-width: 450px; background: white; display: flex; flex-direction: column; height: 100%; border-right: 1px solid #eee; border-left: 1px solid #eee; }
-        .screen { flex: 1; display: flex; flex-direction: column; overflow: hidden; height: 100%; }
-        input { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+        #app { width: 100%; max-width: 450px; background: white; display: flex; flex-direction: column; height: 100%; }
+        .screen { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        input { width: 100%; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; margin-bottom: 10px; }
         .btn-main { width: 100%; padding: 14px; background: #0095f6; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        /* LISTA */
         .user-card { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .on { color: #1fb141; font-size: 11px; font-weight: bold; }
-        .off { color: #999; font-size: 11px; }
+        .status { font-size: 11px; font-weight: bold; }
+        .typing-text { font-size: 10px; color: #0095f6; font-style: italic; }
+
+        /* CHAT */
         #msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 15px; background: #fdfdfd; }
-        .bubble { padding: 10px 14px; border-radius: 18px; max-width: 85%; font-size: 14px; position: relative; }
+        .bubble { padding: 8px 12px; border-radius: 18px; max-width: 85%; font-size: 14px; position: relative; }
         .msg-me { align-self: flex-end; background: #0095f6; color: white; }
         .msg-others { align-self: flex-start; background: #efefef; color: #333; }
-        .time { font-size: 9px; opacity: 0.6; display: block; text-align: right; margin-top: 3px; }
+        .meta { font-size: 9px; display: flex; justify-content: flex-end; gap: 3px; margin-top: 2px; opacity: 0.8; }
+        .check-blue { color: #20f3ff; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div id="login-screen" class="screen" style="padding: 30px; justify-content: center;">
+    <div id="login-screen" class="screen" style="padding:40px; justify-content:center;">
         <h2 style="text-align:center">A Praça</h2>
-        <input type="text" id="user" placeholder="Nome (Só letras)" maxlength="10">
-        <input type="password" id="pass" placeholder="Senha (4 números)" maxlength="4">
+        <input type="text" id="user" placeholder="Usuário" maxlength="10">
+        <input type="password" id="pass" placeholder="Senha" maxlength="4">
         <button class="btn-main" onclick="processar('login')">ENTRAR</button>
-        <button onclick="processar('cadastro')" style="background:none; border:none; color:#0095f6; margin-top:15px; font-weight:bold; cursor:pointer">Criar Conta</button>
-        <p id="feedback" style="text-align:center; font-size:12px; color:red"></p>
+        <button onclick="processar('cadastro')" style="background:none; border:none; color:#0095f6; margin-top:15px; font-weight:bold;">Criar Conta</button>
+        <p id="feedback" style="text-align:center; color:red; font-size:12px"></p>
     </div>
 
     <div id="list-screen" class="screen" style="display:none">
-        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center">
+        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
             <b>Conversas</b>
-            <span onclick="location.reload()" style="color:red; cursor:pointer; font-size:13px">Sair</span>
+            <span onclick="location.reload()" style="color:red; cursor:pointer">Sair</span>
         </div>
-        <div id="user-list" style="overflow-y:auto"></div>
+        <div id="user-list"></div>
     </div>
 
     <div id="chat-screen" class="screen" style="display:none">
         <div style="padding:15px; border-bottom:1px solid #eee; display:flex; align-items:center; gap:10px">
-            <button onclick="voltar()" style="border:none; background:none; font-size:24px; cursor:pointer">‹</button>
-            <b id="chat-title">Nome</b>
+            <button onclick="voltar()" style="border:none; background:none; font-size:24px;">‹</button>
+            <div>
+                <b id="chat-title">Nome</b><br>
+                <span id="chat-status" class="typing-text" style="display:none">digitando...</span>
+            </div>
         </div>
         <div id="msgs"></div>
-        <div style="padding:10px; display:flex; gap:8px; border-top:1px solid #eee">
-            <input type="text" id="msg-input" placeholder="Mensagem..." style="margin:0; flex:1">
+        <div style="padding:10px; border-top:1px solid #eee; display:flex; gap:8px">
+            <input type="text" id="msg-input" placeholder="Mensagem..." style="margin:0" oninput="avisarDigitando()">
             <button onclick="enviar()" style="border:none; background:none; color:#0095f6; font-weight:bold">Enviar</button>
         </div>
     </div>
@@ -56,30 +64,35 @@
 
 <audio id="snd-pop" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
 <audio id="snd-send" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+<audio id="snd-writing" src="https://assets.mixkit.co/active_storage/sfx/2544/2544-preview.mp3" loop></audio>
 
 <script>
     const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec"; 
-    let meuNome = "";
-    let chatCom = "";
-    let ultimaQtd = 0;
+    let meuNome = "", chatCom = "", ultimaQtd = 0, isDig = false, timerDig;
 
     async function processar(tipo) {
         const u = document.getElementById('user').value.trim();
         const s = document.getElementById('pass').value.trim();
         const res = await fetch(`${URL_SCRIPT}?acao=${tipo}&u=${u}&s=${s}`);
-        const txt = await res.text();
-
-        if(txt.trim() === "ok") {
-            if(tipo === 'cadastro') alert("Criado!");
+        if(await res.text() === "ok") {
+            if(tipo === 'cadastro') alert("Pronto!");
             else {
                 meuNome = u;
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('list-screen').style.display = 'flex';
                 carregarUsuarios();
-                setInterval(carregarUsuarios, 5000); // Atualiza lista
-                setInterval(() => { fetch(`${URL_SCRIPT}?acao=login&u=${meuNome}&s=${s}`); }, 20000); // Mantém Online
+                setInterval(carregarUsuarios, 5000);
+                setInterval(manterOnline, 10000);
             }
         } else { document.getElementById('feedback').innerText = "Erro!"; }
+    }
+
+    function manterOnline() { fetch(`${URL_SCRIPT}?acao=ping&u=${meuNome}&dig=${isDig?'sim':'não'}`); }
+
+    function avisarDigitando() {
+        isDig = true;
+        clearTimeout(timerDig);
+        timerDig = setTimeout(() => { isDig = false; }, 3000);
     }
 
     async function carregarUsuarios() {
@@ -87,19 +100,29 @@
         const users = await res.json();
         document.getElementById('user-list').innerHTML = users.map(u => {
             if(u.nome.toLowerCase() === meuNome.toLowerCase()) return '';
+            const statusColor = u.status === 'Online' ? 'green' : '#999';
             return `<div class="user-card" onclick="abrirChat('${u.nome}')">
-                <span>${u.nome}</span>
-                <span class="${u.status==='Online'?'on':'off'}">${u.status}</span>
+                <span>${u.nome} ${u.digitando?'<small class="typing-text">...digitando</small>':''}</span>
+                <span class="status" style="color:${statusColor}">${u.status}</span>
             </div>`;
         }).join('');
+        
+        // Se estiver no chat com alguém e ele estiver digitando, toca o som e mostra status
+        const outro = users.find(u => u.nome === chatCom);
+        if(outro && outro.digitando) {
+            document.getElementById('chat-status').style.display = 'block';
+            document.getElementById('snd-writing').play().catch(()=>{});
+        } else {
+            document.getElementById('chat-status').style.display = 'none';
+            document.getElementById('snd-writing').pause();
+        }
     }
 
     function abrirChat(nome) {
-        chatCom = nome;
+        chatCom = nome; ultimaQtd = 0;
         document.getElementById('list-screen').style.display = 'none';
         document.getElementById('chat-screen').style.display = 'flex';
         document.getElementById('chat-title').innerText = nome;
-        ultimaQtd = 0;
         carregarMensagens();
         window.loopChat = setInterval(carregarMensagens, 3000);
     }
@@ -111,10 +134,15 @@
         if(msgs.length !== ultimaQtd) {
             document.getElementById('msgs').innerHTML = msgs.map(m => {
                 const eu = m.u.toLowerCase() === meuNome.toLowerCase();
-                return `<div class="bubble ${eu?'msg-me':'msg-others'}">${m.m}<span class="time">${m.h}</span></div>`;
+                let check = '✓';
+                if(m.status === 'enviada' && eu) check = '✓';
+                if(m.status === 'lida' && eu) check = '<span class="check-blue">✓✓</span>';
+                return `<div class="bubble ${eu?'msg-me':'msg-others'}">${m.m}
+                    <div class="meta"><span>${m.h}</span> ${eu?check:''}</div>
+                </div>`;
             }).join('');
             document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
-            if(ultimaQtd > 0 && msgs.length > ultimaQtd && !msgs[msgs.length-1].u.toLowerCase().includes(meuNome.toLowerCase())) document.getElementById('snd-pop').play();
+            if(ultimaQtd > 0 && msgs.length > ultimaQtd && msgs[msgs.length-1].u.toLowerCase() !== meuNome.toLowerCase()) document.getElementById('snd-pop').play();
             ultimaQtd = msgs.length;
         }
     }
@@ -127,7 +155,6 @@
             tipo: 'mensagem', de: meuNome, para: chatCom, msg: input.value 
         }) });
         input.value = "";
-        setTimeout(carregarMensagens, 400);
     }
 
     function voltar() { clearInterval(window.loopChat); chatCom = ""; document.getElementById('chat-screen').style.display = 'none'; document.getElementById('list-screen').style.display = 'flex'; }
