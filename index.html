@@ -6,57 +6,66 @@
     <title>A Praça</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: sans-serif; background: #fafafa; margin: 0; display: flex; justify-content: center; height: 100vh; }
-        #app { width: 100%; max-width: 450px; background: white; display: flex; flex-direction: column; border: 1px solid #ccc; position: relative; }
-        .screen { flex: 1; display: flex; flex-direction: column; padding: 20px; overflow: hidden; }
-        .regras { font-size: 11px; color: #666; background: #eee; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: left; }
-        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
-        .btn-ver { position: absolute; right: 10px; top: 12px; border: none; background: none; color: #0095f6; font-weight: bold; cursor: pointer; }
-        .btn-main { width: 100%; padding: 14px; background: #0095f6; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .user-card { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; cursor: pointer; }
-        #msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 10px; background: #f9f9f9; }
-        .bubble { padding: 10px; border-radius: 10px; max-width: 80%; font-size: 14px; }
-        .msg-me { align-self: flex-end; background: #0095f6; color: white; }
-        .msg-others { align-self: flex-start; background: #e5e5e5; }
+        body { font-family: sans-serif; background: #fafafa; margin: 0; display: flex; justify-content: center; height: 100svh; overflow: hidden; }
+        #app { width: 100%; max-width: 450px; background: white; display: flex; flex-direction: column; height: 100%; position: relative; }
+        
+        .screen { flex: 1; display: flex; flex-direction: column; padding: 20px; overflow: hidden; height: 100%; }
+        
+        /* LOGIN */
+        .regras { font-size: 11px; color: #666; background: #f0f0f0; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #0095f6; }
+        input { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+        .btn-main { width: 100%; padding: 14px; background: #0095f6; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        /* LISTA */
+        .user-card { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .status-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+        .on { background: #e6f9ec; color: #1fb141; }
+        .off { background: #f2f2f2; color: #999; }
+
+        /* CHAT INDIVIDUAL */
+        #msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 15px; background: #fdfdfd; }
+        .bubble { padding: 10px 14px; border-radius: 18px; max-width: 80%; font-size: 14px; line-height: 1.4; }
+        .msg-me { align-self: flex-end; background: #0095f6; color: white; border-bottom-right-radius: 2px; }
+        .msg-others { align-self: flex-start; background: #efefef; color: #333; border-bottom-left-radius: 2px; }
     </style>
 </head>
 <body>
 
 <div id="app">
     <div id="login-screen" class="screen">
-        <h2 style="text-align:center">A Praça</h2>
+        <h2 style="text-align:center; margin-top: 0;">A Praça</h2>
         <div class="regras">
-            <b>Atenção:</b><br>
+            <b>Regras:</b><br>
             • Nome: Apenas letras (Máx 10).<br>
-            • Senha: 4 números (Ex: 0012).
+            • Senha: 4 números (Aceita começar com 0).
         </div>
         <input type="text" id="user" placeholder="Nome de usuário" maxlength="10">
         <div style="position:relative">
             <input type="password" id="pass" placeholder="Senha (4 números)" maxlength="4">
-            <button class="btn-ver" onclick="togglePass()">VER</button>
+            <button onclick="togglePass()" style="position:absolute; right:10px; top:12px; border:none; background:none; color:#0095f6; font-weight:bold; cursor:pointer">VER</button>
         </div>
         <button class="btn-main" onclick="processar('login')">ENTRAR</button>
-        <button onclick="processar('cadastro')" style="background:none; border:none; color:#0095f6; margin-top:20px; font-weight:bold; cursor:pointer">CRIAR CONTA</button>
+        <button onclick="processar('cadastro')" style="background:none; border:none; color:#0095f6; margin-top:15px; font-weight:bold; cursor:pointer">CRIAR CONTA</button>
         <p id="feedback" style="text-align:center; font-size:12px; color:red"></p>
     </div>
 
     <div id="list-screen" class="screen" style="display:none; padding:0">
-        <div style="padding:15px; border-bottom:1px solid #ccc; display:flex; justify-content:space-between; font-weight:bold">
-            <span>Conversas</span>
-            <span onclick="location.reload()" style="color:red; cursor:pointer">Sair</span>
+        <div style="padding:15px; border-bottom:1px solid #ccc; display:flex; justify-content:space-between; background:white">
+            <span style="font-weight:bold">Contatos</span>
+            <span onclick="location.reload()" style="color:red; cursor:pointer; font-size:14px">Sair</span>
         </div>
-        <div id="user-list"></div>
+        <div id="user-list" style="overflow-y:auto"></div>
     </div>
 
     <div id="chat-screen" class="screen" style="display:none; padding:0">
-        <div style="padding:15px; border-bottom:1px solid #ccc; display:flex; align-items:center; gap:10px">
-            <button onclick="voltar()" style="border:none; background:none; font-size:20px; cursor:pointer">‹</button>
-            <span id="chat-title" style="font-weight:bold">Chat</span>
+        <div style="padding:15px; border-bottom:1px solid #ccc; display:flex; align-items:center; gap:10px; background:white">
+            <button onclick="voltar()" style="border:none; background:none; font-size:24px; cursor:pointer">‹</button>
+            <span id="chat-title" style="font-weight:bold">Nome</span>
         </div>
         <div id="msgs"></div>
-        <div style="padding:10px; display:flex; gap:5px">
-            <input type="text" id="msg-input" placeholder="Mensagem..." style="margin:0">
-            <button onclick="enviar()" style="border:none; background:none; color:#0095f6; font-weight:bold">Enviar</button>
+        <div style="padding:10px; display:flex; gap:8px; border-top:1px solid #eee; background:white">
+            <input type="text" id="msg-input" placeholder="Mensagem..." style="margin:0; flex:1">
+            <button onclick="enviar()" style="border:none; background:none; color:#0095f6; font-weight:bold; font-size:16px">Enviar</button>
         </div>
     </div>
 </div>
@@ -68,9 +77,11 @@
 <script>
     const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec"; 
     let meuNome = "";
+    let chatCom = "";
     let ultimaQtd = 0;
 
-    function som(id) { document.getElementById(id).play().catch(()=>{}); }
+    const som = (id) => document.getElementById(id).play().catch(()=>{});
+    
     function togglePass() {
         const p = document.getElementById('pass');
         p.type = p.type === "password" ? "text" : "password";
@@ -82,22 +93,19 @@
         const s = document.getElementById('pass').value.trim();
         const f = document.getElementById('feedback');
 
-        if(!/^[A-Za-z]+$/.test(u)) { f.innerText="Nome só letras!"; return; }
-        if(s.length !== 4 || isNaN(s)) { f.innerText="Senha 4 números!"; return; }
+        if(!/^[A-Za-z]+$/.test(u)) { f.innerText="Nome: use apenas letras!"; return; }
+        if(s.length !== 4) { f.innerText="Senha: use 4 números!"; return; }
 
         som('snd-click');
-        f.style.color = "gray";
-        f.innerText = "carregando...";
+        f.style.color = "gray"; f.innerText = "carregando...";
 
         const res = await fetch(`${URL_SCRIPT}?acao=${tipo}&u=${u}&s=${s}`);
         const txt = await res.text();
 
         if(txt.trim() === "ok") {
-            if(tipo === 'cadastro') {
-                alert("Conta criada! Clique em entrar.");
-                f.innerText = "";
-            } else {
-                meuNome = u.toLowerCase();
+            if(tipo === 'cadastro') { alert("Criado! Clique em entrar."); f.innerText = ""; }
+            else {
+                meuNome = u;
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('list-screen').style.display = 'flex';
                 carregarUsuarios();
@@ -105,7 +113,7 @@
             }
         } else {
             f.style.color = "red";
-            f.innerText = (txt === "duplicado") ? "Nome já existe!" : "Usuário/Senha errados!";
+            f.innerText = (txt === "duplicado") ? "Este nome já existe!" : "Dados incorretos!";
         }
     }
 
@@ -113,33 +121,36 @@
         const res = await fetch(`${URL_SCRIPT}?acao=get_users`);
         const users = await res.json();
         document.getElementById('user-list').innerHTML = users.map(u => {
-            if(u.nome.toLowerCase() === meuNome) return '';
+            if(u.nome.toLowerCase() === meuNome.toLowerCase()) return '';
             return `<div class="user-card" onclick="abrirChat('${u.nome}')">
                 <span>${u.nome}</span>
-                <span style="font-size:10px; color:${u.status==='Online'?'green':'#ccc'}">${u.status}</span>
+                <span class="status-badge ${u.status==='Online'?'on':'off'}">${u.status}</span>
             </div>`;
         }).join('');
     }
 
     function abrirChat(nome) {
         som('snd-click');
+        chatCom = nome;
         document.getElementById('list-screen').style.display = 'none';
         document.getElementById('chat-screen').style.display = 'flex';
         document.getElementById('chat-title').innerText = nome;
+        ultimaQtd = 0;
         carregarMensagens();
         window.loopChat = setInterval(carregarMensagens, 3000);
     }
 
     async function carregarMensagens() {
-        const res = await fetch(URL_SCRIPT);
+        if(!chatCom) return;
+        const res = await fetch(`${URL_SCRIPT}?acao=get_msgs&eu=${meuNome}&outro=${chatCom}`);
         const msgs = await res.json();
         if(msgs.length !== ultimaQtd) {
             document.getElementById('msgs').innerHTML = msgs.map(m => {
-                const eu = m.u.toLowerCase() === meuNome;
+                const eu = m.u.toLowerCase() === meuNome.toLowerCase();
                 return `<div class="bubble ${eu?'msg-me':'msg-others'}">${m.m}</div>`;
             }).join('');
             document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
-            if(ultimaQtd > 0 && msgs.length > ultimaQtd && msgs[msgs.length-1].u.toLowerCase() !== meuNome) som('snd-pop');
+            if(ultimaQtd > 0 && msgs.length > ultimaQtd && msgs[msgs.length-1].u.toLowerCase() !== meuNome.toLowerCase()) som('snd-pop');
             ultimaQtd = msgs.length;
         }
     }
@@ -148,11 +159,14 @@
         const input = document.getElementById('msg-input');
         if(!input.value.trim()) return;
         som('snd-send');
-        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'mensagem', usuario: meuNome, msg: input.value }) });
+        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ 
+            tipo: 'mensagem', de: meuNome, para: chatCom, msg: input.value 
+        }) });
         input.value = "";
+        setTimeout(carregarMensagens, 500);
     }
 
-    function voltar() { som('snd-click'); clearInterval(window.loopChat); document.getElementById('chat-screen').style.display = 'none'; document.getElementById('list-screen').style.display = 'flex'; }
+    function voltar() { som('snd-click'); clearInterval(window.loopChat); chatCom = ""; document.getElementById('chat-screen').style.display = 'none'; document.getElementById('list-screen').style.display = 'flex'; }
 </script>
 </body>
 </html>
