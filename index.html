@@ -3,58 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>A Praça - Premium</title>
+    <title>A Praça</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, sans-serif; background: #fafafa; margin: 0; height: 100svh; display: flex; justify-content: center; overflow: hidden; }
-        #app { width: 100%; max-width: 500px; background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; border-left: 1px solid #ddd; border-right: 1px solid #ddd; }
+        body { font-family: -apple-system, sans-serif; background: #fafafa; margin: 0; height: 100svh; display: flex; justify-content: center; }
+        #app { width: 100%; max-width: 500px; background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; border: 1px solid #ddd; }
         
-        /* CABEÇALHOS */
-        .header { background: #fff; border-bottom: 1px solid #dbdbdb; padding: 15px; display: flex; align-items: center; justify-content: space-between; font-weight: 600; }
-        .btn-acao { border: none; background: none; color: #0095f6; cursor: pointer; font-weight: bold; }
-
         /* TELAS */
         .screen { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* LOGIN */
-        #login-screen { padding: 40px; justify-content: center; align-items: center; text-align: center; }
-        .input-group { width: 100%; position: relative; margin-bottom: 10px; }
-        input { width: 100%; padding: 12px; border: 1px solid #dbdbdb; border-radius: 8px; background: #fafafa; }
-        .btn-main { width: 100%; padding: 14px; border: none; border-radius: 8px; background: #0095f6; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        /* LOGIN E REGRAS */
+        #login-screen { padding: 30px; justify-content: center; align-items: center; text-align: center; }
+        .regras { font-size: 11px; color: #ed4956; margin-bottom: 20px; text-align: left; background: #fff1f1; padding: 10px; border-radius: 8px; border: 1px solid #ffcccc; }
+        .input-group { width: 100%; position: relative; margin-bottom: 12px; }
+        input { width: 100%; padding: 14px; border: 1px solid #dbdbdb; border-radius: 8px; font-size: 16px; background: #fafafa; }
+        .btn-main { width: 100%; padding: 14px; border: none; border-radius: 8px; background: #0095f6; color: white; font-weight: bold; cursor: pointer; }
 
-        /* CONTATOS */
+        /* LISTA */
         .user-card { padding: 15px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .online { background: #47dc31; }
-        .offline { background: #ccc; }
+        .online-dot { width: 10px; height: 10px; border-radius: 50%; background: #47dc31; display: inline-block; margin-right: 5px; }
+        .offline-dot { width: 10px; height: 10px; border-radius: 50%; background: #ccc; display: inline-block; margin-right: 5px; }
 
         /* CHAT */
-        #msgs { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; background: #f9f9f9; }
-        .bubble { padding: 10px; border-radius: 15px; font-size: 14px; max-width: 80%; line-height: 1.4; position: relative; }
+        #msgs { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; background: #fdfdfd; }
+        .bubble { padding: 10px 14px; border-radius: 18px; font-size: 14px; max-width: 80%; position: relative; }
         .msg-me { align-self: flex-end; background: #3797f0; color: #fff; }
         .msg-others { align-self: flex-start; background: #efefef; color: #262626; }
-        .hora { font-size: 9px; opacity: 0.7; display: block; text-align: right; }
+        .header { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="app">
     <div id="login-screen" class="screen">
-        <h1 style="color:#262626">A Praça</h1>
-        <div class="input-group"><input type="text" id="user" placeholder="Usuário"></div>
-        <div class="input-group">
-            <input type="password" id="pass" placeholder="Senha" maxlength="4">
-            <button onclick="togglePass()" style="position:absolute; right:10px; top:12px; border:none; background:none; color:#0095f6; font-size:10px; font-weight:bold;">VER</button>
+        <h1 style="margin-bottom:5px;">A Praça</h1>
+        
+        <div class="regras">
+            <b>Regras de acesso:</b><br>
+            • Nome: Máximo 10 letras (A-Z), sem números.<br>
+            • Senha: Exatamente 4 dígitos (ex: 0123).
         </div>
-        <button class="btn-main" id="btn-entrar" onclick="entrar()">ENTRAR</button>
-        <p id="status-label" style="font-size:12px; color:gray;"></p>
-        <button onclick="cadastrar()" style="border:none; background:none; color:#0095f6; margin-top:20px; font-weight:bold;">Criar Conta</button>
+
+        <div class="input-group">
+            <input type="text" id="user" placeholder="Usuário (Só letras)" maxlength="10">
+        </div>
+        <div class="input-group">
+            <input type="text" id="pass" placeholder="Senha (4 números)" maxlength="4" inputmode="numeric">
+        </div>
+        
+        <button class="btn-main" id="btn-entrar" onclick="validar('entrar')">ENTRAR</button>
+        <button onclick="validar('cadastrar')" style="border:none; background:none; color:#0095f6; margin-top:20px; font-weight:bold; cursor:pointer">CRIAR CONTA</button>
+        <p id="status-msg" style="font-size:12px; color:red; margin-top:10px;"></p>
     </div>
 
     <div id="list-screen" class="screen" style="display:none">
         <div class="header">
-            <span>Conversas</span>
-            <button class="btn-acao" onclick="sair()">Sair</button>
+            <span>Contatos</span>
+            <button onclick="location.reload()" style="border:none; background:none; color:#ed4956; font-weight:bold;">Sair</button>
         </div>
         <div id="user-list"></div>
     </div>
@@ -84,41 +89,66 @@
     let loopChat, loopLista;
 
     function som(id) { document.getElementById(id).play().catch(()=>{}); }
-    function togglePass() { const p = document.getElementById('pass'); p.type = p.type==='password'?'text':'password'; }
 
-    async function entrar() {
+    // --- BLOCO: VALIDAÇÃO DE REGRAS ---
+    function validar(tipo) {
         const u = document.getElementById('user').value.trim();
         const s = document.getElementById('pass').value.trim();
-        if(!u || !s) return;
+        const msg = document.getElementById('status-msg');
+        
+        // Regra 1: Apenas letras no nome
+        const apenasLetras = /^[A-Za-zÀ-ÖØ-öø-ÿ]+$/;
+        if (!apenasLetras.test(u)) {
+            msg.innerText = "Nome deve conter apenas letras!";
+            return;
+        }
+
+        // Regra 2: Senha de 4 dígitos (aceitando zeros)
+        if (s.length !== 4 || isNaN(s)) {
+            msg.innerText = "Senha deve ter exatamente 4 números!";
+            return;
+        }
+
+        msg.innerText = "";
         som('snd-click');
-        document.getElementById('status-label').innerText = "conectando...";
+        if (tipo === 'entrar') entrar(u, s);
+        else cadastrar(u, s);
+    }
+
+    async function entrar(u, s) {
+        document.getElementById('status-msg').style.color = "gray";
+        document.getElementById('status-msg').innerText = "conectando...";
         
         const res = await fetch(`${URL_SCRIPT}?acao=login&u=${encodeURIComponent(u)}&s=${encodeURIComponent(s)}`);
-        if(await res.text() === "ok") {
+        const txt = await res.text();
+        
+        if (txt.trim() === "ok") {
             meuNome = u.toLowerCase();
             localStorage.setItem('p_user_nome', u);
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('list-screen').style.display = 'flex';
             carregarUsuarios();
-            loopLista = setInterval(carregarUsuarios, 10000); // Atualiza lista a cada 10s
+            loopLista = setInterval(carregarUsuarios, 10000);
         } else {
-            alert("Erro!");
-            document.getElementById('status-label').innerText = "";
+            document.getElementById('status-msg').style.color = "red";
+            document.getElementById('status-msg').innerText = "Usuário ou senha incorretos!";
         }
     }
 
     async function carregarUsuarios() {
-        const res = await fetch(`${URL_SCRIPT}?acao=get_all_users`);
-        const users = await res.json();
-        const container = document.getElementById('user-list');
-        container.innerHTML = users.map(u => {
-            if(u.nome.toLowerCase() === meuNome) return '';
-            const cor = u.status === 'Online' ? 'online' : 'offline';
-            return `<div class="user-card" onclick="abrirChat('${u.nome}')">
-                        <span>${u.nome}</span>
-                        <span><span class="dot ${cor}"></span><small>${u.status}</small></span>
-                    </div>`;
-        }).join('');
+        try {
+            const res = await fetch(`${URL_SCRIPT}?acao=get_all_users`);
+            const users = await res.json();
+            const container = document.getElementById('user-list');
+            container.innerHTML = users.map(u => {
+                if(u.nome.toLowerCase() === meuNome) return '';
+                const dot = u.status === 'Online' ? 'online-dot' : 'offline-dot';
+                return `<div class="user-card" onclick="abrirChat('${u.nome}')">
+                            <span>${u.nome}</span>
+                            <small><span class="${dot}"></span>${u.status}</small>
+                        </div>`;
+            }).join('');
+        } catch(e) { console.error("Erro lista"); }
     }
 
     function abrirChat(nome) {
@@ -137,7 +167,7 @@
         if(msgs.length !== ultimaQtd) {
             document.getElementById('msgs').innerHTML = msgs.map(m => {
                 const eu = m.u.toLowerCase() === meuNome;
-                return `<div class="bubble ${eu?'msg-me':'msg-others'}">${m.m}<span class="hora">${m.h}</span></div>`;
+                return `<div class="bubble ${eu?'msg-me':'msg-others'}">${m.m}<span style="font-size:8px; display:block; opacity:0.6">${m.h}</span></div>`;
             }).join('');
             document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
             if(ultimaQtd > 0 && msgs.length > ultimaQtd && msgs[msgs.length-1].u.toLowerCase() !== meuNome) som('snd-pop');
@@ -153,17 +183,14 @@
         input.value = "";
     }
 
-    function voltar() { som('snd-click'); clearInterval(loopChat); document.getElementById('chat-screen').style.display = 'none'; document.getElementById('list-screen').style.display = 'flex'; carregarUsuarios(); loopLista = setInterval(carregarUsuarios, 10000); }
-    function sair() { som('snd-click'); location.reload(); }
-
-    async function cadastrar() {
-        const u = document.getElementById('user').value.trim();
-        const s = document.getElementById('pass').value.trim();
-        if(!u || !s) return alert("Preencha!");
-        som('snd-click');
+    async function cadastrar(u, s) {
         const res = await fetch(URL_SCRIPT, { method: 'POST', body: JSON.stringify({ tipo: 'cadastro', usuario: u, senha: s }) });
-        alert("Conta criada ou Verifique se o nome já existe!");
+        const txt = await res.text();
+        if(txt === "duplicado") alert("Este nome já existe!");
+        else alert("Conta criada! Agora clique em ENTRAR.");
     }
+
+    function voltar() { som('snd-click'); clearInterval(loopChat); document.getElementById('chat-screen').style.display = 'none'; document.getElementById('list-screen').style.display = 'flex'; carregarUsuarios(); }
 </script>
 </body>
 </html>
