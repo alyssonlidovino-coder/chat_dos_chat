@@ -3,204 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>A Praça VIP</title>
+    <title>Zap Praça</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: #f0f2f5; margin: 0; height: 100svh; display: flex; justify-content: center; overflow: hidden; }
-        #app { width: 100%; max-width: 500px; background: #fff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-        .header { padding: 15px; border-bottom: 1px solid #dbdbdb; display: flex; align-items: center; justify-content: space-between; font-weight: bold; background: #fff; }
-        .screen { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background: #cfd8dc; margin: 0; height: 100svh; display: flex; justify-content: center; overflow: hidden; }
+        #app { width: 100%; max-width: 500px; background: #e5ddd5; height: 100%; display: flex; flex-direction: column; position: relative; }
         
-        /* LOGIN */
-        #login-screen { padding: 40px 20px; justify-content: center; align-items: center; text-align: center; }
-        .input-box { width: 100%; position: relative; margin-bottom: 15px; }
-        input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; background: #fafafa; outline: none; }
-        .btn-ver { position: absolute; right: 15px; top: 18px; border: none; background: none; color: #0084ff; font-weight: bold; cursor: pointer; }
-        .btn-main { width: 100%; padding: 16px; border: none; border-radius: 12px; background: #0084ff; color: #fff; font-weight: bold; font-size: 16px; cursor: pointer; }
+        /* HEADER ESTILO ZAP */
+        .header { background: #075e54; color: white; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; }
+        .btn-header { border: none; background: none; color: white; font-size: 14px; cursor: pointer; }
 
-        /* LISTA */
-        .u-item { padding: 18px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .online { background: #45bd62; } .offline { background: #ccc; }
+        .screen { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* TELA DE LOGIN */
+        #login-screen { background: #fff; padding: 30px; justify-content: center; align-items: center; text-align: center; }
+        .input-group { width: 100%; position: relative; margin-bottom: 15px; }
+        input { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; background: #f8f8f8; }
+        .btn-ver { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); border: none; background: none; color: #075e54; font-weight: bold; cursor: pointer; }
+        .btn-entrar { width: 100%; padding: 15px; border: none; border-radius: 8px; background: #25d366; color: white; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        /* LISTA DE CONTATOS */
+        #user-list { background: #fff; flex: 1; overflow-y: auto; }
+        .user-card { padding: 12px 16px; border-bottom: 1px solid #f2f2f2; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 45px; height: 45px; background: #dfe5e7; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #919191; font-size: 20px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background: #ccc; }
+        .dot-online { background: #06d755; box-shadow: 0 0 5px #06d755; }
 
         /* CHAT */
-        #msgs { flex: 1; overflow-y: auto; padding: 15px; background: #f9f9f9; display: flex; flex-direction: column; gap: 8px; }
-        .bubble { padding: 10px 14px; border-radius: 18px; font-size: 14px; max-width: 80%; line-height: 1.4; position: relative; }
-        .msg-me { align-self: flex-end; background: #0084ff; color: #fff; border-bottom-right-radius: 4px; }
-        .msg-others { align-self: flex-start; background: #e4e6eb; color: #050505; border-bottom-left-radius: 4px; }
-        .info { font-size: 9px; margin-top: 4px; display: flex; justify-content: flex-end; gap: 4px; opacity: 0.9; }
+        #msgs { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 4px; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: contain; }
+        .bubble { padding: 6px 10px; font-size: 14.5px; max-width: 85%; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); line-height: 1.4; }
+        .msg-me { align-self: flex-end; background: #dcf8c6; color: #303030; border-radius: 8px 0 8px 8px; }
+        .msg-others { align-self: flex-start; background: #fff; color: #303030; border-radius: 0 8px 8px 8px; }
         
-        #typing-msg { height: 24px; font-size: 11px; color: #0084ff; padding: 0 15px; font-style: italic; display: flex; align-items: center; }
-        .check-v { font-weight: bold; }
+        /* HORA E CHECK */
+        .meta { display: flex; align-items: center; justify-content: flex-end; gap: 3px; font-size: 10px; color: #888; margin-top: 2px; }
+        .check-blue { color: #34b7f1; font-weight: bold; font-size: 11px; }
+
+        #typing-msg { height: 20px; padding: 2px 16px; font-size: 12px; color: #075e54; font-weight: 500; background: rgba(255,255,255,0.8); }
+
+        .input-area { background: #f0f0f0; padding: 8px 12px; display: flex; gap: 8px; align-items: center; }
+        #msg-input { flex: 1; border-radius: 20px; padding: 10px 15px; border: none; }
+        .btn-send { background: #075e54; color: white; border: none; border-radius: 50%; width: 42px; height: 42px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; }
     </style>
 </head>
 <body>
 
 <div id="app">
     <div id="login-screen" class="screen">
-        <h1 style="color:#0084ff; font-size: 38px; margin-bottom: 40px;">A Praça</h1>
-        <div class="input-box"><input type="text" id="user" placeholder="Usuário"></div>
-        <div class="input-box">
+        <div style="background:#075e54; width:80px; height:80px; border-radius:20px; margin-bottom:20px; display:flex; align-items:center; justify-content:center; color:white; font-size:40px;">🌳</div>
+        <h2 style="color:#075e54">A Praça Premium</h2>
+        <div class="input-group"><input type="text" id="user" placeholder="Usuário"></div>
+        <div class="input-group">
             <input type="password" id="pass" placeholder="Senha">
-            <button class="btn-ver" onclick="togglePass()">VER</button>
+            <button class="btn-ver" onclick="toggleSenha()">VER</button>
         </div>
-        <button class="btn-main" onclick="entrar()">Entrar</button>
-        <p id="st-login" style="font-size:12px; color:gray; margin-top:15px;"></p>
-        <button onclick="cadastrar()" style="border:none; background:none; color:#0084ff; margin-top:20px; font-weight:bold;">Criar nova conta</button>
+        <button class="btn-entrar" onclick="entrar()">ENTRAR</button>
+        <p id="status-log" style="font-size:12px; color:#888; margin-top:15px;"></p>
+        <button onclick="cadastrar()" style="background:none; border:none; color:#075e54; margin-top:10px; cursor:pointer">Criar nova conta</button>
     </div>
 
     <div id="list-screen" class="screen" style="display:none">
         <div class="header">
-            <span>Conversas</span>
-            <button onclick="fazerLogout()" style="border:none; background:none; color:#ff3b30; font-weight:bold;">Sair</button>
+            <span>WhatsApp Praça</span>
+            <button class="btn-header" onclick="location.reload()">Sair</button>
         </div>
         <div id="user-list"></div>
     </div>
 
     <div id="chat-screen" class="screen" style="display:none">
         <div class="header">
-            <button onclick="voltar()" style="border:none; background:none; font-size:28px; cursor:pointer;">‹</button>
-            <span id="c-nome">Chat</span>
-            <div style="width:30px"></div>
+            <div style="display:flex; align-items:center; gap:10px">
+                <button class="btn-header" onclick="fecharChat()" style="font-size:20px">←</button>
+                <div id="chat-title">Nome</div>
+            </div>
+            <button class="btn-header" onclick="limparChatPlanilha()">Limpar</button>
         </div>
         <div id="msgs"></div>
         <div id="typing-msg"></div>
-        <div style="padding:12px; display:flex; gap:10px; border-top:1px solid #eee; background:#fff;">
-            <input type="text" id="m-in" placeholder="Mensagem..." style="border-radius:25px; flex:1;">
-            <button onclick="enviar()" style="border:none; background:none; color:#0084ff; font-weight:bold; font-size:22px;">➤</button>
+        <div class="input-area">
+            <input type="text" id="msg-input" placeholder="Mensagem" autocomplete="off">
+            <button class="btn-send" onclick="enviar()">➤</button>
         </div>
     </div>
 </div>
 
-<audio id="s-pop" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3"></audio>
-<audio id="s-type" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+<audio id="snd-pop" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
+<audio id="snd-typing" src="https://assets.mixkit.co/active_storage/sfx/1103/1103-preview.mp3" loop></audio>
 
 <script>
-    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec"; // COLOQUE SEU LINK AQUI
-    let eu = "", outro = "", lastQ = 0;
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbwZPofaS3kqtw2NIpWLSh_xRR0Ng1wWg7_jc5NAJ7yH7TcWsBEX3UKBzvdw8hou_Fn-WQ/exec"; 
+    let meuNome = "";
+    let ultimaQtd = 0;
+    let chatAberto = false;
 
-    function togglePass() {
+    function toggleSenha() {
         const p = document.getElementById('pass');
-        p.type = p.type === 'password' ? 'text' : 'password';
+        p.type = p.type === "password" ? "text" : "password";
     }
 
     async function entrar() {
         const u = document.getElementById('user').value.trim();
         const s = document.getElementById('pass').value.trim();
         if(!u || !s) return;
-        document.getElementById('st-login').innerText = "conectando...";
-        
-        const r = await fetch(`${URL_SCRIPT}?acao=login&u=${u}&s=${s}`);
-        const resTxt = await r.text();
-        if(resTxt === "ok") {
-            eu = u.toLowerCase();
+        document.getElementById('status-log').innerText = "conectando...";
+        const res = await fetch(`${URL_SCRIPT}?acao=login&u=${encodeURIComponent(u)}&s=${encodeURIComponent(s)}`);
+        if(await res.text() === "ok") {
+            meuNome = u.toLowerCase();
+            localStorage.setItem('p_user_nome', u);
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('list-screen').style.display = 'flex';
-            setInterval(sync, 3000);
+            setInterval(sincronizar, 3000);
         } else {
-            alert("Usuário ou senha incorretos.");
-            document.getElementById('st-login').innerText = "";
+            alert("Erro!");
+            document.getElementById('status-log').innerText = "";
         }
     }
 
-    async function fazerLogout() {
-        await fetch(`${URL_SCRIPT}?acao=logout&u=${eu}`);
-        location.reload();
-    }
-
-    async function sync() {
+    async function sincronizar() {
         try {
-            const r = await fetch(`${URL_SCRIPT}?eu=${eu}&outro=${outro}&acao=get_all`);
-            const d = await r.json();
+            const res = await fetch(URL_SCRIPT);
+            const data = await res.json();
 
-            // Atualiza Lista de Usuários
-            if(outro === "") {
-                document.getElementById('user-list').innerHTML = d.usuarios.map(u => {
-                    if(u.nome.toLowerCase() === eu) return '';
-                    return `<div class="u-item" onclick="abrirChat('${u.nome}')">
-                        <span>${u.nome}</span>
-                        <span style="font-size:12px; color:${u.status==='online'?'#45bd62':'#999'}">
-                            <span class="dot ${u.status}"></span>${u.status}
-                        </span>
-                    </div>`;
+            // Atualiza Lista de Contatos (Só se não estiver no chat)
+            if(!chatAberto) {
+                document.getElementById('user-list').innerHTML = data.usuarios.map(u => {
+                    if(u.nome.toLowerCase() === meuNome) return '';
+                    return `
+                        <div class="user-card" onclick="abrirChat('${u.nome}')">
+                            <div class="user-info">
+                                <div class="avatar">${u.nome[0].toUpperCase()}</div>
+                                <span>${u.nome}</span>
+                            </div>
+                            <div class="dot ${u.status === 'online' ? 'dot-online' : ''}"></div>
+                        </div>`;
                 }).join('');
             }
 
-            // Chat Ativo
-            if(outro !== "") {
-                // Marcar como lido as dele
-                fetch(`${URL_SCRIPT}?acao=ler&eu=${eu}&outro=${outro}`);
-
-                // Som e Texto de digitando
-                const tMsg = document.getElementById('typing-msg');
-                if(d.digitando && d.digitando.toLowerCase() === outro.toLowerCase()) {
-                    if(tMsg.innerText === "") document.getElementById('s-type').play().catch(()=>{});
-                    tMsg.innerText = d.digitando + " está digitando...";
-                } else {
-                    tMsg.innerText = "";
-                }
-
-                // Mensagens
-                if(d.mensagens.length !== lastQ) {
-                    document.getElementById('msgs').innerHTML = d.mensagens.map(m => {
-                        const isMe = m.u.toLowerCase() === eu;
-                        let checks = "";
-                        if(isMe) {
-                            const cor = m.s === "SIM" ? "#40c4ff" : "#fff";
-                            checks = `<span class="check-v" style="color:${cor}">✓✓</span>`;
-                        }
-                        return `<div class="bubble ${isMe?'msg-me':'msg-others'}">
-                            ${m.m}
-                            <div class="info"><span>${m.h}</span>${checks}</div>
-                        </div>`;
-                    }).join('');
-                    document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
-                    if(lastQ > 0 && d.mensagens.length > lastQ && d.mensagens[d.mensagens.length-1].u.toLowerCase() !== eu) {
-                        document.getElementById('s-pop').play();
-                    }
-                    lastQ = d.mensagens.length;
-                }
+            // Atualiza Digitando
+            const tMsg = document.getElementById('typing-msg');
+            const sTyp = document.getElementById('snd-typing');
+            if(data.digitando && data.digitando.toLowerCase() !== meuNome) {
+                tMsg.innerText = data.digitando + " está digitando...";
+                if(chatAberto) sTyp.play().catch(()=>{});
+            } else {
+                tMsg.innerText = "";
+                sTyp.pause();
             }
-        } catch(e) {}
+
+            // Atualiza Mensagens
+            if(chatAberto && data.mensagens.length !== ultimaQtd) {
+                document.getElementById('msgs').innerHTML = data.mensagens.map(m => {
+                    const souEu = m.u.toLowerCase() === meuNome;
+                    return `
+                        <div class="bubble ${souEu ? 'msg-me' : 'msg-others'}">
+                            ${m.m}
+                            <div class="meta">
+                                ${m.h} ${souEu ? '<span class="check-blue">✓✓</span>' : ''}
+                            </div>
+                        </div>`;
+                }).join('');
+                const div = document.getElementById('msgs');
+                div.scrollTop = div.scrollHeight;
+                if(ultimaQtd > 0 && data.mensagens.length > ultimaQtd) {
+                    if(data.mensagens[data.mensagens.length-1].u.toLowerCase() !== meuNome) document.getElementById('snd-pop').play();
+                }
+                ultimaQtd = data.mensagens.length;
+            }
+        } catch(e){}
     }
 
     function abrirChat(nome) {
-        outro = nome;
-        lastQ = 0;
+        chatAberto = true;
+        document.getElementById('chat-title').innerText = nome;
         document.getElementById('list-screen').style.display = 'none';
         document.getElementById('chat-screen').style.display = 'flex';
-        document.getElementById('c-nome').innerText = nome;
     }
 
-    function voltar() {
-        outro = "";
+    function fecharChat() {
+        chatAberto = false;
         document.getElementById('chat-screen').style.display = 'none';
         document.getElementById('list-screen').style.display = 'flex';
     }
 
     function enviar() {
-        const input = document.getElementById('m-in');
-        const txt = input.value.trim();
-        if(!txt) return;
-        fetch(URL_SCRIPT, { method:'POST', mode:'no-cors', body: JSON.stringify({ tipo:'mensagem', usuario:eu, para:outro, msg:txt }) });
+        const input = document.getElementById('msg-input');
+        if(!input.value.trim()) return;
+        fetch(URL_SCRIPT, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ tipo: 'mensagem', usuario: meuNome, msg: input.value }) });
         input.value = "";
-        fetch(`${URL_SCRIPT}?acao=set_typing&u=${eu}&status=nao`);
+        fetch(`${URL_SCRIPT}?acao=set_typing&u=${meuNome}&status=nao`);
     }
 
-    // LISTENER DIGITANDO
-    document.getElementById('m-in').addEventListener('input', () => {
-        fetch(`${URL_SCRIPT}?acao=set_typing&u=${eu}&status=sim`);
-        clearTimeout(window.tTyp);
-        window.tTyp = setTimeout(() => fetch(`${URL_SCRIPT}?acao=set_typing&u=${eu}&status=nao`), 4000);
+    async function limparChatPlanilha() {
+        if(!confirm("Apagar histórico para todos?")) return;
+        await fetch(`${URL_SCRIPT}?acao=limpar`);
+        location.reload();
+    }
+
+    document.getElementById('msg-input').addEventListener('input', () => {
+        fetch(`${URL_SCRIPT}?acao=set_typing&u=${meuNome}&status=sim`);
+        clearTimeout(window.tOut);
+        window.tOut = setTimeout(() => {
+            fetch(`${URL_SCRIPT}?acao=set_typing&u=${meuNome}&status=nao`);
+        }, 4000);
     });
-
-    function cadastrar() {
-        const u = document.getElementById('user').value.trim();
-        const s = document.getElementById('pass').value.trim();
-        if(!u || !s) return alert("Preencha tudo");
-        fetch(URL_SCRIPT, { method:'POST', mode:'no-cors', body: JSON.stringify({ tipo:'cadastro', usuario:u, senha:s }) });
-        alert("Conta enviada! Tente logar.");
-    }
 </script>
 </body>
 </html>
